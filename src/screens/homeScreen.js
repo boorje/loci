@@ -15,14 +15,14 @@ class HomeScreen extends React.Component {
         includeBase64: true,
         cropperToolbarTitle: 'Edit photo',
       });
-      this.usePhoto(editedPhoto.data);
+      this._usePhoto(editedPhoto.data);
     } catch (error) {
       // The error is thrown when a user cancels the edit. Should not throw error
       alert(error);
     }
   };
 
-  usePhoto = base64 => {
+  _usePhoto = base64 => {
     this.props.navigation.navigate('Api', {
       base64: base64,
     });
