@@ -1,16 +1,24 @@
 import {GOOGLE_API_KEY} from '../constants/apiKeys';
+import objSerializer from '../helpers/objSerializer';
 
-const slugifySearchText = searchText => searchText.replace(' ', '%20');
+const _encodeURL = searchText => {
+  const params = {
+    input: encodeURIComponent(searchText),
+    inputtype: 'textquery',
+    fields: 'place_id',
+    key: GOOGLE_API_KEY,
+  };
+  return `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?${objSerializer(
+    params,
+  )}`;
+};
 
+//TODO: Add description of the function
 const placeSearchGMP = async searchText => {
-  const slugText = slugifySearchText(searchText);
-  const fields = 'place_id';
-  const parameters = `input=${slugText}&inputtype=textquery&fields=${fields}&key=${GOOGLE_API_KEY}`;
-  const GMP_URL = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?${parameters}`;
-
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await fetch(GMP_URL, {
+      const url = _encodeURL(searchText);
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           Accept: 'application/json',

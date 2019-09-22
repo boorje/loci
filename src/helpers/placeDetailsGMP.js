@@ -1,14 +1,23 @@
 import {GOOGLE_API_KEY} from '../constants/apiKeys';
+import objSerializer from '../helpers/objSerializer';
+
+const _encodeURL = placeId => {
+  const params = {
+    place_id: placeId,
+    fields: 'name,photo,type,price_level,rating,review,user_ratings_total',
+    key: GOOGLE_API_KEY,
+  };
+  return `https://maps.googleapis.com/maps/api/place/details/json?${objSerializer(
+    params,
+  )}`;
+};
 
 //TODO: Add description of the function
 const placeDetailsGMP = async placeId => {
-  const fields = 'name,photo,type,price_level,rating,review,user_ratings_total';
-  const parameters = `place_id=${placeId}&fields=${fields}&key=${GOOGLE_API_KEY}`;
-  const GMP_URL = `https://maps.googleapis.com/maps/api/place/details/json?${parameters}`;
-
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await fetch(GMP_URL, {
+      const url = _encodeURL(placeId);
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
