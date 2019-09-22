@@ -6,10 +6,10 @@ import placeDetailsGMP from '../helpers/placeDetailsGMP';
 
 class ApiScreen extends React.Component {
   state = {
-    base64: this.props.navigation.getParam('base64', null),
     loading: true,
     detectedName: '',
     apiError: '',
+    base64: this.props.navigation.getParam('base64', null),
   };
 
   componentDidMount = async () => {
