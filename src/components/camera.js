@@ -1,57 +1,41 @@
 import React from 'react';
-import {Text, View, Button} from 'react-native';
+import {View, Button} from 'react-native';
 import PropTypes from 'prop-types';
-import ImagePicker from 'react-native-image-crop-picker';
+import {RNCamera} from 'react-native-camera';
 
 export default class AppCamera extends React.Component {
-  state = {
-    hasCameraPermission: null,
-  };
-
-  async componentDidMount() {
-    //TODO: Ask for permissions
-    // const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    // this.setState({ hasCameraPermission: status === "granted" });
-    ImagePicker.openPicker({
-      width: 300,
-      height: 400,
-      cropping: true,
-    }).then(image => {
-      console.log(image);
-    });
-  }
-
-  //TODO: 1. Send for review.
-  //TODO: 2. Send information further to Google Text detection API on success.
-  async _snap() {
+  async _takePhoto() {
     const options = {base64: true};
     try {
       if (this.camera) {
         const response = await this.camera.takePictureAsync(options);
-        this.props.addPhoto(response);
+        this.props.takePhoto(response);
       }
     } catch (error) {
+      //TODO: display a message displaying the error
       alert('ERROR:\n ', error);
     }
   }
 
   render() {
-    const {hasCameraPermission} = this.state;
-    if (hasCameraPermission === null) {
-      return <View />;
-    } else if (hasCameraPermission === false) {
-      // TODO: Render a guide to enable this
-      return <Text>No access to camera</Text>;
-    } else {
-      return (
-        <View style={{flex: 1}}>
-          <Button title="Take photo" onPress={() => this._snap()} />
-        </View>
-      );
-    }
+    return (
+      <View style={{flex: 1}}>
+        <RNCamera
+          style={{
+            flex: 1,
+            alignItems: 'center',
+          }}
+          ref={ref => {
+            this.camera = ref;
+          }}
+          captureAudio={false}
+        />
+        <Button title="Take photo" onPress={() => this._takePhoto()} />
+      </View>
+    );
   }
 }
 
 AppCamera.proptypes = {
-  addPhoto: PropTypes.func.isRequired,
+  takePhoto: PropTypes.func.isRequired,
 };
