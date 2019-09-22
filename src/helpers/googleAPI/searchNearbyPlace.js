@@ -1,6 +1,6 @@
 import {GOOGLE_API_KEY} from '../../constants/apiKeys';
 import objSerializer from '../objSerializer';
-import getPosition from '../googleAPI/getPosition';
+import getPosition from './getPosition';
 
 const _getCoordinates = async () => {
   const coords = await getPosition();
@@ -9,7 +9,7 @@ const _getCoordinates = async () => {
 };
 
 // searches for nearby restaurants with keyword same as searcText
-const _nearbySearchUrl = (searchText, latitude, longitude) => {
+const _searchUrl = (searchText, latitude, longitude) => {
   const params = {
     location: `${latitude},${longitude}`,
     radius: `2000`,
@@ -23,16 +23,11 @@ const _nearbySearchUrl = (searchText, latitude, longitude) => {
 };
 
 //TODO: Add description of the function
-const placeSearchGMP = searchText => {
+const searchNearbyPlace = searchText => {
   return new Promise(async (resolve, reject) => {
     try {
       const coords = await _getCoordinates();
-      const url = _nearbySearchUrl(
-        searchText,
-        coords.latitude,
-        coords.longitude,
-      );
-      console.log(url);
+      const url = _searchUrl(searchText, coords.latitude, coords.longitude);
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -53,15 +48,4 @@ const placeSearchGMP = searchText => {
   });
 };
 
-export default placeSearchGMP;
-
-/** RETURNS
-Object {
-  "candidates": Array [
-    Object {
-      "place_id": "ChIJRVLEVO_GhkcR7ZgniDNTarg",
-    },
-  ],
-  "status": "OK",
-}
- */
+export default searchNearbyPlace;

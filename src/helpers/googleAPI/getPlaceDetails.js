@@ -13,7 +13,7 @@ const _encodeURL = placeId => {
 };
 
 //TODO: Add description of the function
-const placeDetailsGMP = async placeId => {
+const getPlaceDetails = async placeId => {
   return new Promise(async (resolve, reject) => {
     try {
       const url = _encodeURL(placeId);
@@ -31,4 +31,4 @@ const placeDetailsGMP = async placeId => {
   });
 };
 
-export default placeDetailsGMP;
+export default getPlaceDetails;

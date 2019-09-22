@@ -1,21 +1,23 @@
 import React from 'react';
 import {Button, Text, View} from 'react-native';
 import googleOcr from '../helpers/googleAPI/googleOcr';
-import placeSearchGMP from '../helpers/googleAPI/placeSearchGMP';
-import placeDetailsGMP from '../helpers/googleAPI/placeDetailsGMP';
+import searchPlace from '../helpers/googleAPI/searchPlace';
+import searchNearbyPlace from '../helpers/googleAPI/searchNearbyPlace';
+import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
+import getPosition from '../helpers/googleAPI/getPosition';
 
 class ApiScreen extends React.Component {
   state = {
     loading: true,
     detectedName: '',
     apiError: '',
+    location: false,
     base64: this.props.navigation.getParam('base64', null),
   };
 
   componentDidMount = async () => {
     try {
       const information = await this._fetchInformation();
-      console.log(information);
       this._navigateToResultsPage(information);
     } catch (error) {
       /* Errors come from the specific API methods.
@@ -35,6 +37,18 @@ class ApiScreen extends React.Component {
       results: results,
     });
 
+  //Error on fetching is not catched?
+  _getCoordinates = async () => {
+    try {
+      const coords = await getPosition();
+      const {latitude, longitude} = coords.coords;
+      this.setState({location: true});
+      return {latitude, longitude};
+    } catch (error) {
+      this.setState({location: false});
+    }
+  };
+
   _fetchInformation = async () => {
     // Detects text from taken picture
 
@@ -42,10 +56,15 @@ class ApiScreen extends React.Component {
     const detectedName = 'Niko Romito Space Milan';
     this.setState({detectedName});
 
-    // Searches for a place_id in GMP from the name detected
-    const results = await placeSearchGMP(detectedName);
+    if (!this.state.location) {
+      // Searches for a place_id in GMP from the name detected
+      const detectedPlace = await searchPlace(detectedName);
 
-    return results;
+      // Searches for the details of the location from the place_id
+      return await getPlaceDetails(detectedPlace);
+    }
+
+    return await searchNearbyPlace();
   };
 
   //TODO: Create a component which takes in the nearby places (top 5?) and renders
