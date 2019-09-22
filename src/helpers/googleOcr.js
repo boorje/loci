@@ -1,4 +1,4 @@
-const API_KEY = 'AIzaSyAYPaCMmMOX01VVMJM4agBEDHKLy8I6ISU';
+import {GOOGLE_API_KEY} from '../constants/apiKeys';
 
 const googleOcr = async base64 => {
   return new Promise(async (resolve, reject) => {
@@ -15,7 +15,7 @@ const googleOcr = async base64 => {
         ],
       };
       const response = await fetch(
-        `https://vision.googleapis.com/v1/images:annotate?key=${API_KEY}`,
+        `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`,
         {
           method: 'POST',
           headers: {

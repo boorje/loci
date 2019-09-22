@@ -1,7 +1,9 @@
+import {GOOGLE_API_KEY} from '../constants/apiKeys';
+
+//TODO: Add description of the function
 const placeDetailsGMP = async placeId => {
-  const GMP_API_KEY = 'AIzaSyAYPaCMmMOX01VVMJM4agBEDHKLy8I6ISU';
   const fields = 'name,photo,type,price_level,rating,review,user_ratings_total';
-  const parameters = `place_id=${placeId}&fields=${fields}&key=${GMP_API_KEY}`;
+  const parameters = `place_id=${placeId}&fields=${fields}&key=${GOOGLE_API_KEY}`;
   const GMP_URL = `https://maps.googleapis.com/maps/api/place/details/json?${parameters}`;
 
   return new Promise(async (resolve, reject) => {
