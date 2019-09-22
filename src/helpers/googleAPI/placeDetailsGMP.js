@@ -1,5 +1,5 @@
-import {GOOGLE_API_KEY} from '../constants/apiKeys';
-import objSerializer from '../helpers/objSerializer';
+import {GOOGLE_API_KEY} from '../../constants/apiKeys';
+import objSerializer from '../objSerializer';
 
 const _encodeURL = placeId => {
   const params = {

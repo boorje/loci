@@ -1,9 +1,8 @@
 const objSerializer = obj => {
-  return Object.entries(obj)
-    .map(
-      ([key, val]) =>
-        `${encodeURIComponent(obj[key])}=${encodeURIComponent(obj[val])}`,
-    )
+  return Object.keys(obj)
+    .map(key => {
+      return key + '=' + obj[key];
+    })
     .join('&');
 };
 

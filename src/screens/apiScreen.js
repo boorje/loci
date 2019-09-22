@@ -1,8 +1,8 @@
 import React from 'react';
 import {Button, Text, View} from 'react-native';
-import googleOcr from '../helpers/googleOcr';
-import placeSearchGMP from '../helpers/placeSearchGMP';
-import placeDetailsGMP from '../helpers/placeDetailsGMP';
+import googleOcr from '../helpers/googleAPI/googleOcr';
+import placeSearchGMP from '../helpers/googleAPI/placeSearchGMP';
+import placeDetailsGMP from '../helpers/googleAPI/placeDetailsGMP';
 
 class ApiScreen extends React.Component {
   state = {
@@ -15,6 +15,7 @@ class ApiScreen extends React.Component {
   componentDidMount = async () => {
     try {
       const information = await this._fetchInformation();
+      console.log(information);
       this._navigateToResultsPage(information);
     } catch (error) {
       /* Errors come from the specific API methods.
@@ -36,16 +37,14 @@ class ApiScreen extends React.Component {
 
   _fetchInformation = async () => {
     // Detects text from taken picture
-    const detectedName = await googleOcr(this.state.base64);
+
+    // const detectedName = await googleOcr(this.state.base64);
+    const detectedName = 'Niko Romito Space Milan';
     this.setState({detectedName});
 
     // Searches for a place_id in GMP from the name detected
-    const detectedPlace = await placeSearchGMP(detectedName);
+    const results = await placeSearchGMP(detectedName);
 
-    // Searches for the details of the location from the place_id
-    const results = await placeDetailsGMP(detectedPlace);
-
-    // returns the result
     return results;
   };
 

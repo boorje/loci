@@ -1,4 +1,4 @@
-import {GOOGLE_API_KEY} from '../constants/apiKeys';
+import {GOOGLE_API_KEY} from '../../constants/apiKeys';
 
 const googleOcr = async base64 => {
   return new Promise(async (resolve, reject) => {
