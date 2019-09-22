@@ -1,42 +1,37 @@
 import React from 'react';
-import {Text, View} from 'react-native';
+import {View} from 'react-native';
+import ImagePicker from 'react-native-image-crop-picker';
 
 import Camera from '../components/camera';
-import PreviewPhoto from '../components/previewPhoto';
 
 class HomeScreen extends React.Component {
-  state = {
-    takenPhoto: {},
+  takePhoto = async photo => {
+    try {
+      this.setState({takenPhoto: photo});
+      const editedPhoto = await ImagePicker.openCropper({
+        path: this.state.takenPhoto.uri,
+        width: 300,
+        height: 100,
+        includeBase64: true,
+        cropperToolbarTitle: 'Edit photo',
+      });
+      this.usePhoto(editedPhoto.data);
+    } catch (error) {
+      // The error is thrown when a user cancels the edit. Should not throw error
+      alert(error);
+    }
   };
 
-  addPhotoToState = photo => {
-    this.setState({takenPhoto: photo});
-  };
-
-  retakePhoto = () => {
-    this.setState({takenPhoto: {}});
-  };
-
-  usePhoto = () => {
+  usePhoto = base64 => {
     this.props.navigation.navigate('Api', {
-      base64: this.state.takenPhoto.base64,
+      base64: base64,
     });
   };
 
   render() {
     return (
       <View style={{flex: 1}}>
-        {/* {this.state.takenPhoto.uri ? (
-          <PreviewPhoto
-            uri={this.state.takenPhoto.uri}
-            retakePhoto={this.retakePhoto}
-            usePhoto={this.usePhoto}
-          />
-        ) : (
-          <Camera addPhoto={photo => this.addPhotoToState(photo)} />
-        )} */}
-        <Camera addPhoto={photo => this.addPhotoToState(photo)} />
-        <Text>This is the home screen.</Text>
+        <Camera takePhoto={photo => this.takePhoto(photo)} />
       </View>
     );
   }

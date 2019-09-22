@@ -1,13 +1,15 @@
 import React from 'react';
-import {Text, View} from 'react-native';
+import {Button, Text, View} from 'react-native';
 import googleOcr from '../helpers/googleOcr';
 import placeSearchGMP from '../helpers/placeSearchGMP';
 import placeDetailsGMP from '../helpers/placeDetailsGMP';
 
 class ApiScreen extends React.Component {
   state = {
-    base64: this.props.navigation.getParam('base64', null),
+    loading: true,
     detectedName: '',
+    apiError: '',
+    base64: this.props.navigation.getParam('base64', null),
   };
 
   componentDidMount = async () => {
@@ -15,27 +17,16 @@ class ApiScreen extends React.Component {
       const information = await this._fetchInformation();
       this._navigateToResultsPage(information);
     } catch (error) {
-      alert(error);
+      /* Errors come from the specific API methods.
+      --- ERRORS ---
+      1. googleOcr text recognition - no text detected
+      2. placeSearchGMP - The "place text" wasn't found
+      3. placeDetailsGMP - no details found of the place
+      */
+      this._renderNearbyPlaces();
+      this.setState({apiError: error});
     }
-  };
-
-  _fetchInformation = async () => {
-    try {
-      // Detects text from taken picture
-      const detectedName = await googleOcr(this.state.base64);
-      this.setState({detectedName});
-
-      // Searches for a place_id in GMP from the name detected
-      const detectedPlace = await placeSearchGMP(detectedName);
-
-      // Searches for the details of the location from the place_id
-      const results = await placeDetailsGMP(detectedPlace);
-
-      // returns the result
-      return results;
-    } catch (error) {
-      alert(error);
-    }
+    this.setState({loading: false});
   };
 
   _navigateToResultsPage = results =>
@@ -43,11 +34,47 @@ class ApiScreen extends React.Component {
       results: results,
     });
 
+  _fetchInformation = async () => {
+    // Detects text from taken picture
+    const detectedName = await googleOcr(this.state.base64);
+    this.setState({detectedName});
+
+    // Searches for a place_id in GMP from the name detected
+    const detectedPlace = await placeSearchGMP(detectedName);
+
+    // Searches for the details of the location from the place_id
+    const results = await placeDetailsGMP(detectedPlace);
+
+    // returns the result
+    return results;
+  };
+
+  //TODO: Create a component which takes in the nearby places (top 5?) and renders
+  _renderNearbyPlaces = () => {
+    return <Text>Are you looking for?</Text>;
+  };
+
+  // Returns a section with actions if nothing was found by API.
+  _renderErrorSection = apiError => {
+    return (
+      <View>
+        <Text>{apiError}</Text>
+        <Button
+          title="New Photo"
+          onPress={() => this.props.navigation.navigate('Home')}
+        />
+        {this._renderNearbyPlaces()}
+      </View>
+    );
+  };
+
   render() {
+    const {loading, detectedName, apiError} = this.state;
     return (
       <View style={{flex: 1}}>
-        <Text>Loading results...</Text>
-        <Text>Found: {this.state.detectedName}</Text>
+        {loading && <Text>Loading results...</Text>}
+        {detectedName.length > 0 && <Text>Found: {detectedName}</Text>}
+        {apiError.length > 0 && this._renderErrorSection(apiError)}
       </View>
     );
   }
