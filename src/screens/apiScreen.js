@@ -66,23 +66,23 @@ class ApiScreen extends React.Component {
           title="New Photo"
           onPress={() => this.props.navigation.navigate('Home')}
         />
-      </View>
-    );
-  };
-
-  render() {
-    const {loading, detectedName, apiError, nearbyPlaces} = this.state;
-    return (
-      <View style={{flex: 1}}>
-        {loading && <Text>Loading results...</Text>}
-        {detectedName.length > 0 && <Text>Found: {detectedName}</Text>}
-        {apiError.length > 0 && this._renderErrorSection(apiError)}
-        {nearbyPlaces.length !== 0 && (
+        {this.state.nearbyPlaces.length !== 0 && (
           <ListOfPlaces
             places={this.state.nearbyPlaces}
             navigateToPlace={index => this.navigateToPlace(index)}
           />
         )}
+      </View>
+    );
+  };
+
+  render() {
+    const {loading, detectedName, apiError} = this.state;
+    return (
+      <View style={{flex: 1}}>
+        {loading && <Text>Loading results...</Text>}
+        {detectedName.length > 0 && <Text>Found: {detectedName}</Text>}
+        {apiError.length > 0 && this._renderErrorSection(apiError)}
       </View>
     );
   }

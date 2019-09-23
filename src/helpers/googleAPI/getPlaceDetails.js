@@ -12,7 +12,12 @@ const _encodeURL = placeId => {
   )}`;
 };
 
-//TODO: Add description of the function
+/**
+ * Returns the details of a restaurant
+ *
+ * @param {string} placeId The placeId to search for
+ * @returns {object}
+ */
 const getPlaceDetails = async placeId => {
   return new Promise(async (resolve, reject) => {
     try {

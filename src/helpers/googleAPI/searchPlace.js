@@ -1,7 +1,13 @@
 import {GOOGLE_API_KEY} from '../../constants/apiKeys';
 import objSerializer from '../objSerializer';
 
-// searches for nearby restaurants with keyword same as searcText
+/**
+ * Returns the url with specified params for google API
+ *
+ * @param {string} searcText The text to search for
+ * @param {object} userLocation The users location as {lat,long}
+ * @returns {string}
+ */
 const _searchUrl = (searchText, userLocation) => {
   const params = userLocation
     ? {

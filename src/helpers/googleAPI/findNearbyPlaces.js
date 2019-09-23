@@ -8,7 +8,6 @@ const _getCoordinates = async () => {
   return {latitude, longitude};
 };
 
-// searches for nearby restaurants with keyword same as searcText
 const _searchUrl = (latitude, longitude) => {
   const params = {
     location: `${latitude},${longitude}`,
@@ -22,7 +21,10 @@ const _searchUrl = (latitude, longitude) => {
   )}`;
 };
 
-//TODO: Add description of the function
+/**
+ * Returns 20 of the closest restaurant based on user location
+ * @returns {Array}
+ */
 const findNearbyPlaces = () => {
   return new Promise(async (resolve, reject) => {
     try {
