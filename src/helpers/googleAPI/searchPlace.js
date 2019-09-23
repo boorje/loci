@@ -2,22 +2,38 @@ import {GOOGLE_API_KEY} from '../../constants/apiKeys';
 import objSerializer from '../objSerializer';
 
 // searches for nearby restaurants with keyword same as searcText
-const _searchUrl = searchText => {
-  const params = {
-    input: encodeURIComponent(searchText),
-    inputtype: 'textquery',
-    fields: 'place_id',
-    key: GOOGLE_API_KEY,
-  };
+const _searchUrl = (searchText, userLocation) => {
+  const params = userLocation
+    ? {
+        input: encodeURIComponent(searchText),
+        inputtype: 'textquery',
+        fields: 'place_id',
+        // eslint-disable-next-line prettier/prettier
+        locationbias: `circle:1000@${userLocation.latitude},${userLocation.longitude}`,
+        key: GOOGLE_API_KEY,
+      }
+    : {
+        input: encodeURIComponent(searchText),
+        inputtype: 'textquery',
+        fields: 'place_id',
+        key: GOOGLE_API_KEY,
+      };
   return `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?${objSerializer(
     params,
   )}`;
 };
 
-const searchPlace = async searchText => {
+/**
+ * Returns the #1 restaurant found
+ *
+ * @param {string} searcText The text to search for
+ * @param {object} userLocation The users location as {lat,long}
+ * @returns {object}
+ */
+const searchPlace = async (searchText, userLocation = null) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await fetch(_searchUrl(searchText), {
+      const response = await fetch(_searchUrl(searchText, userLocation), {
         method: 'POST',
         headers: {
           Accept: 'application/json',

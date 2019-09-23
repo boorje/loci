@@ -2,7 +2,10 @@ import React from 'react';
 import {View} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 
+// --- Components ---
 import Camera from '../components/camera';
+
+// --- Helper Functions ---
 import ListOfPlaces from '../components/listOfPlaces';
 import findNearbyPlaces from '../helpers/googleAPI/findNearbyPlaces';
 import getPosition from '../helpers/googleAPI/getPosition';
@@ -10,6 +13,8 @@ import getPosition from '../helpers/googleAPI/getPosition';
 class HomeScreen extends React.Component {
   state = {
     foundLocation: false,
+    userLocation: {latitude: '', longitude: ''},
+    takenPhoto: {},
     nearbyPlaces: [],
   };
 
@@ -29,8 +34,7 @@ class HomeScreen extends React.Component {
     try {
       const coords = await getPosition();
       const {latitude, longitude} = coords.coords;
-      this.setState({foundLocation: true});
-      return {latitude, longitude};
+      this.setState({foundLocation: true, userLocation: {latitude, longitude}});
     } catch (error) {
       this.setState({foundLocation: false});
     }
@@ -49,7 +53,7 @@ class HomeScreen extends React.Component {
       this._usePhoto(editedPhoto.data);
     } catch (error) {
       // The error is thrown when a user cancels the edit. Should not throw error
-      alert(error);
+      this.setState({takenPhoto: {}});
     }
   };
 
@@ -57,8 +61,17 @@ class HomeScreen extends React.Component {
     this.props.navigation.navigate('Api', {
       base64: base64,
       nearbyPlaces: this.state.nearbyPlaces,
+      userLocation: {
+        latitude: this.state.latitude,
+        longitude: this.state.longitude,
+      },
     });
   };
+
+  navigateToPlace = placeIndex =>
+    this.props.navigation.navigate('Results', {
+      results: this.state.nearbyPlaces[placeIndex],
+    });
 
   render() {
     const {nearbyPlaces} = this.state;
@@ -66,7 +79,10 @@ class HomeScreen extends React.Component {
       <View style={{flex: 1}}>
         <Camera takePhoto={photo => this.takePhoto(photo)} />
         {nearbyPlaces.length !== 0 && (
-          <ListOfPlaces places={this.state.nearbyPlaces} />
+          <ListOfPlaces
+            places={this.state.nearbyPlaces}
+            navigateToPlace={index => this.navigateToPlace(index)}
+          />
         )}
       </View>
     );

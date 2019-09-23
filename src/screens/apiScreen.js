@@ -1,8 +1,10 @@
 import React from 'react';
 import {Button, Text, View} from 'react-native';
 
+// --- Components ---
 import ListOfPlaces from '../components/listOfPlaces';
 
+// --- Helper Functions ---
 import googleOcr from '../helpers/googleAPI/googleOcr';
 import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
@@ -14,11 +16,11 @@ class ApiScreen extends React.Component {
     apiError: '',
     base64: this.props.navigation.getParam('base64', null),
     nearbyPlaces: this.props.navigation.getParam('nearbyPlaces', null),
+    userLocation: this.props.navigation.getParam('userLocation', null),
   };
 
   componentDidMount = async () => {
     try {
-      await this._getCoordinates();
       const information = await this._fetchPlaceInfo();
       this._navigateToResultsPage(information);
     } catch (error) {
@@ -43,19 +45,17 @@ class ApiScreen extends React.Component {
     // const detectedName = await googleOcr(this.state.base64);
     const detectedName = 'Niko Romito Space Milan';
     this.setState({detectedName});
-    const detectedPlace = await searchPlace(detectedName);
+    const detectedPlace = await searchPlace(
+      detectedName,
+      this.state.userLocation,
+    );
     return await getPlaceDetails(detectedPlace);
   };
 
-  _renderNearbyPlaces = () => {
-    const nearbyPlaces = this.state.nearbyPlaces;
-    return (
-      //TODO: Create a component which takes the array of places as prop
-      <View style={{display: 'flex', height: 100, alignItems: 'center'}}>
-        <Text>Places near you.</Text>
-      </View>
-    );
-  };
+  navigateToPlace = placeIndex =>
+    this.props.navigation.navigate('Results', {
+      results: this.state.nearbyPlaces[placeIndex],
+    });
 
   // Returns a section with actions if nothing was found by API.
   _renderErrorSection = apiError => {
@@ -66,7 +66,6 @@ class ApiScreen extends React.Component {
           title="New Photo"
           onPress={() => this.props.navigation.navigate('Home')}
         />
-        {this._renderNearbyPlaces()}
       </View>
     );
   };
@@ -79,7 +78,10 @@ class ApiScreen extends React.Component {
         {detectedName.length > 0 && <Text>Found: {detectedName}</Text>}
         {apiError.length > 0 && this._renderErrorSection(apiError)}
         {nearbyPlaces.length !== 0 && (
-          <ListOfPlaces places={this.state.nearbyPlaces} />
+          <ListOfPlaces
+            places={this.state.nearbyPlaces}
+            navigateToPlace={index => this.navigateToPlace(index)}
+          />
         )}
       </View>
     );
