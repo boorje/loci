@@ -1,5 +1,8 @@
 import React from 'react';
 import {Button, Text, View} from 'react-native';
+
+import ListOfPlaces from '../components/listOfPlaces';
+
 import googleOcr from '../helpers/googleAPI/googleOcr';
 import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
@@ -69,12 +72,15 @@ class ApiScreen extends React.Component {
   };
 
   render() {
-    const {loading, detectedName, apiError} = this.state;
+    const {loading, detectedName, apiError, nearbyPlaces} = this.state;
     return (
       <View style={{flex: 1}}>
         {loading && <Text>Loading results...</Text>}
         {detectedName.length > 0 && <Text>Found: {detectedName}</Text>}
         {apiError.length > 0 && this._renderErrorSection(apiError)}
+        {nearbyPlaces.length !== 0 && (
+          <ListOfPlaces places={this.state.nearbyPlaces} />
+        )}
       </View>
     );
   }

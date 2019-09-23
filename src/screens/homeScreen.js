@@ -1,8 +1,9 @@
 import React from 'react';
-import {Text, View} from 'react-native';
+import {View} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 
 import Camera from '../components/camera';
+import ListOfPlaces from '../components/listOfPlaces';
 import findNearbyPlaces from '../helpers/googleAPI/findNearbyPlaces';
 import getPosition from '../helpers/googleAPI/getPosition';
 
@@ -59,21 +60,14 @@ class HomeScreen extends React.Component {
     });
   };
 
-  _renderNearbyPlaces = () => {
-    return (
-      //TODO: Create a component which takes the array of places as prop
-      <View style={{display: 'flex', height: 100, alignItems: 'center'}}>
-        <Text>Places near you.</Text>
-      </View>
-    );
-  };
-
   render() {
-    console.log(this.state.nearbyPlaces);
+    const {nearbyPlaces} = this.state;
     return (
       <View style={{flex: 1}}>
         <Camera takePhoto={photo => this.takePhoto(photo)} />
-        {this.state.nearbyPlaces && this._renderNearbyPlaces()}
+        {nearbyPlaces.length !== 0 && (
+          <ListOfPlaces places={this.state.nearbyPlaces} />
+        )}
       </View>
     );
   }
