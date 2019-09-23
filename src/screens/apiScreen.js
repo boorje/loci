@@ -2,22 +2,21 @@ import React from 'react';
 import {Button, Text, View} from 'react-native';
 import googleOcr from '../helpers/googleAPI/googleOcr';
 import searchPlace from '../helpers/googleAPI/searchPlace';
-import searchNearbyPlace from '../helpers/googleAPI/searchNearbyPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
-import getPosition from '../helpers/googleAPI/getPosition';
 
 class ApiScreen extends React.Component {
   state = {
     loading: true,
     detectedName: '',
     apiError: '',
-    location: false,
     base64: this.props.navigation.getParam('base64', null),
+    nearbyPlaces: this.props.navigation.getParam('nearbyPlaces', null),
   };
 
   componentDidMount = async () => {
     try {
-      const information = await this._fetchInformation();
+      await this._getCoordinates();
+      const information = await this._fetchPlaceInfo();
       this._navigateToResultsPage(information);
     } catch (error) {
       /* Errors come from the specific API methods.
@@ -37,39 +36,22 @@ class ApiScreen extends React.Component {
       results: results,
     });
 
-  //Error on fetching is not catched?
-  _getCoordinates = async () => {
-    try {
-      const coords = await getPosition();
-      const {latitude, longitude} = coords.coords;
-      this.setState({location: true});
-      return {latitude, longitude};
-    } catch (error) {
-      this.setState({location: false});
-    }
-  };
-
-  _fetchInformation = async () => {
-    // Detects text from taken picture
-
+  _fetchPlaceInfo = async () => {
     // const detectedName = await googleOcr(this.state.base64);
     const detectedName = 'Niko Romito Space Milan';
     this.setState({detectedName});
-
-    if (!this.state.location) {
-      // Searches for a place_id in GMP from the name detected
-      const detectedPlace = await searchPlace(detectedName);
-
-      // Searches for the details of the location from the place_id
-      return await getPlaceDetails(detectedPlace);
-    }
-
-    return await searchNearbyPlace();
+    const detectedPlace = await searchPlace(detectedName);
+    return await getPlaceDetails(detectedPlace);
   };
 
-  //TODO: Create a component which takes in the nearby places (top 5?) and renders
   _renderNearbyPlaces = () => {
-    return <Text>Are you looking for?</Text>;
+    const nearbyPlaces = this.state.nearbyPlaces;
+    return (
+      //TODO: Create a component which takes the array of places as prop
+      <View style={{display: 'flex', height: 100, alignItems: 'center'}}>
+        <Text>Places near you.</Text>
+      </View>
+    );
   };
 
   // Returns a section with actions if nothing was found by API.

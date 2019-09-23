@@ -1,4 +1,4 @@
-import {GOOGLE_API_KEY} from '../constants/apiKeys';
+import {GOOGLE_API_KEY} from '../../constants/apiKeys';
 import objSerializer from '../objSerializer';
 
 // searches for nearby restaurants with keyword same as searcText

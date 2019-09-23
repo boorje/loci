@@ -9,12 +9,12 @@ const _getCoordinates = async () => {
 };
 
 // searches for nearby restaurants with keyword same as searcText
-const _searchUrl = (searchText, latitude, longitude) => {
+const _searchUrl = (latitude, longitude) => {
   const params = {
     location: `${latitude},${longitude}`,
-    radius: `2000`,
+    // radius: `2000`,
     type: 'restaurant',
-    keyword: encodeURIComponent(searchText),
+    rankby: 'distance',
     key: GOOGLE_API_KEY,
   };
   return `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${objSerializer(
@@ -23,11 +23,11 @@ const _searchUrl = (searchText, latitude, longitude) => {
 };
 
 //TODO: Add description of the function
-const searchNearbyPlace = searchText => {
+const findNearbyPlaces = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const coords = await _getCoordinates();
-      const url = _searchUrl(searchText, coords.latitude, coords.longitude);
+      const url = _searchUrl(coords.latitude, coords.longitude);
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -36,16 +36,11 @@ const searchNearbyPlace = searchText => {
         },
       });
       const jsonResponse = await response.json();
-
-      // Nearby search response
-      resolve(jsonResponse.results[0]);
-
-      // Place search response
-      // resolve(jsonResponse.candidates[0].place_id);
+      resolve(jsonResponse.results);
     } catch (error) {
       reject(`Place Search ERROR: ${error}`);
     }
   });
 };
 
-export default searchNearbyPlace;
+export default findNearbyPlaces;
