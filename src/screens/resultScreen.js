@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Button,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -7,13 +8,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
+// -- Components --
 import colors from '../constants/colors';
 import Stars from '../components/stars';
 import Slideshow from '../components/slideshow';
 import Review from '../components/review';
 import {GOOGLE_API_KEY} from '../constants/apiKeys';
 
-//!DELETE FROM HERE
+// -- Helper Functions --
 import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
 import getReviews from '../helpers/googleAPI/getReviews';
@@ -25,18 +28,21 @@ const ErrorScreen = errorMsg => {
       <Text>
         An error as occurred: -- {errorMsg}. Below you have nearby places
       </Text>
+      <Button title="Retake photo" />
     </SafeAreaView>
   );
 };
 
+// TODO: Add a screen/component which is rendered when an error occurs, i.e. text/place wasn't found
 class ResultScreen extends React.Component {
   state = {
     thePlace: {},
+    loading: true,
     apiError: '',
     showPhotos: true,
     height: 0,
 
-    // the place information
+    // The place information
     name: '',
     type: '',
     rating: null,
@@ -53,7 +59,6 @@ class ResultScreen extends React.Component {
     isNearbyPlace: this.props.navigation.getParam('isNearbyPlace', false),
   };
 
-  //TODO: Update users
   componentDidMount = async () => {
     try {
       const placeInfo = await this._loadInfo();
@@ -61,8 +66,10 @@ class ResultScreen extends React.Component {
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
       // Google API - name not found -> present nearby locations or retake photo. Add description on how to take proper photo
+      alert('Something went wrong. Please try again');
       this.setState({apiError: error});
     }
+    this.setState({loading: false});
   };
 
   _loadInfo = async () => {
@@ -101,9 +108,9 @@ class ResultScreen extends React.Component {
       type: types ? types[0] : null,
       rating: rating ? rating : null,
       user_ratings_total: user_ratings_total ? user_ratings_total : null,
-      price_level: price_level ? this._renderPrice(price_level) : null,
+      price_level: price_level ? this._renderDollarsFrom(price_level) : null,
       photos: photos ? this._extractUrl(photos) : null,
-      reviews: reviews ? this._extractUserReview(reviews) : null,
+      reviews: reviews ? this._extractReviewInfo(reviews) : null,
     });
   };
 
@@ -118,7 +125,7 @@ class ResultScreen extends React.Component {
     return await getPlaceDetails(detectedPlace);
   };
 
-  _renderPrice = price => {
+  _renderDollarsFrom = price => {
     let price_level = '';
     for (let index = 0; index < price; index++) {
       price_level += '$';
@@ -126,13 +133,13 @@ class ResultScreen extends React.Component {
     return price_level;
   };
 
-  _extractUserReview = review => {
-    return review.map((user, index) => ({
+  _extractReviewInfo = review => {
+    return review.map((review, index) => ({
       id: index,
-      author_name: user.author_name,
-      rating: user.rating,
-      time: user.time,
-      text: user.text,
+      author_name: review.author_name,
+      rating: review.rating,
+      time: review.time,
+      text: review.text,
     }));
   };
 

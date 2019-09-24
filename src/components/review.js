@@ -40,7 +40,7 @@ const Review = props => {
     <FlatList
       keyboardShouldPersistTaps="always"
       data={props.reviews.sort(_sortBy('time'))}
-      keyExtractor={user => user.id}
+      keyExtractor={review => review.time.toString()}
       renderItem={review => RenderReview(review)}
       ItemSeparatorComponent={_flatListItemSeparator}
     />
