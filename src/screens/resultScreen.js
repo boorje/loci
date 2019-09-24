@@ -17,6 +17,7 @@ import Review from '../components/review';
 import {GOOGLE_API_KEY} from '../constants/apiKeys';
 
 // -- Helper Functions --
+import googleOcr from '../helpers/googleAPI/googleOcr';
 import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
 import getReviews from '../helpers/googleAPI/getReviews';
@@ -62,9 +63,7 @@ class ResultScreen extends React.Component {
   componentDidMount = async () => {
     try {
       const placeInfo = await this._loadInfo();
-      console.log('1');
       await this._updateStateWith(placeInfo);
-      console.log('2');
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
       // Google API - name not found -> present nearby locations or retake photo. Add description on how to take proper photo
@@ -117,9 +116,7 @@ class ResultScreen extends React.Component {
   };
 
   _fetchPlaceInfoFrom = async base64 => {
-    // const detectedName = await googleOcr(base64);
-    const detectedName = 'Niko Romito Space Milan';
-    // this.setState({detectedName});
+    const detectedName = await googleOcr(base64);
     const detectedPlace = await searchPlace(
       detectedName,
       this.state.userLocation,
@@ -142,8 +139,8 @@ class ResultScreen extends React.Component {
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
-  _extractReviewInfo = review => {
-    return review.map((review, index) => ({
+  _extractReviewInfo = reviews => {
+    return reviews.map((review, index) => ({
       id: index,
       author_name: review.author_name,
       rating: review.rating,

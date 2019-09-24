@@ -11,12 +11,15 @@ import findNearbyPlaces from '../helpers/googleAPI/findNearbyPlaces';
 import getPosition from '../helpers/googleAPI/getPosition';
 import getDistanceTo from '../helpers/googleAPI/getDistanceTo';
 
-// För att det ska funka på Android
+// So that it works on Android
 const {UIManager} = NativeModules;
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
 
 class HomeScreen extends React.Component {
+  static navigationOptions = {
+    header: null,
+  };
   state = {
     foundLocation: false,
     userLocation: {latitude: '', longitude: ''},
