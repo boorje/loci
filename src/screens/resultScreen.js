@@ -17,6 +17,7 @@ import Review from '../components/review';
 import {GOOGLE_API_KEY} from '../constants/apiKeys';
 
 // -- Helper Functions --
+import googleOcr from '../helpers/googleAPI/googleOcr';
 import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
 import getReviews from '../helpers/googleAPI/getReviews';
@@ -105,7 +106,7 @@ class ResultScreen extends React.Component {
 
     this.setState({
       name,
-      type: types ? types[0] : null,
+      type: types ? this._modifyType(types[0]) : null,
       rating: rating ? rating : null,
       user_ratings_total: user_ratings_total ? user_ratings_total : null,
       price_level: price_level ? this._renderDollarsFrom(price_level) : null,
@@ -115,9 +116,7 @@ class ResultScreen extends React.Component {
   };
 
   _fetchPlaceInfoFrom = async base64 => {
-    // const detectedName = await googleOcr(base64);
-    const detectedName = 'Niko Romito Space Milan';
-    // this.setState({detectedName});
+    const detectedName = await googleOcr(base64);
     const detectedPlace = await searchPlace(
       detectedName,
       this.state.userLocation,
@@ -133,8 +132,15 @@ class ResultScreen extends React.Component {
     return price_level;
   };
 
-  _extractReviewInfo = review => {
-    return review.map((review, index) => ({
+  _modifyType = type => {
+    if (type.includes('_')) {
+      type = type.replace('_', ' ');
+    }
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  };
+
+  _extractReviewInfo = reviews => {
+    return reviews.map((review, index) => ({
       id: index,
       author_name: review.author_name,
       rating: review.rating,
@@ -168,7 +174,7 @@ class ResultScreen extends React.Component {
 
   render() {
     return (
-      <SafeAreaView style={{flex: 1, backgroundColor: colors.paper}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         <View>
           <View style={{alignItems: 'center'}}>
             <Text style={styles.name}>{this.state.name}</Text>
