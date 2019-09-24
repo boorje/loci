@@ -52,7 +52,7 @@ const _toRadians = value => (value * Math.PI) / 180;
  *
  * @param {object} from The coordinates of the starting point
  * @param {object} to The coordinates of the ending point
- * @returns {string} The distance between in meters
+ * @returns {string} The distance rounded to the nearest integer
  */
 const getDistanceTo = (from, to) => {
   let lat1 = from.latitude;
@@ -71,7 +71,7 @@ const getDistanceTo = (from, to) => {
     Math.sin(dLong / 2) * Math.sin(dLong / 2) * Math.cos(lat1) * Math.cos(lat2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const d = R * c;
-  return Math.round(d * 1000).toString();
+  return Math.round(d * 1000);
 };
 
 export default getDistanceTo;
