@@ -22,7 +22,7 @@ class ApiScreen extends React.Component {
   componentDidMount = async () => {
     try {
       const information = await this._fetchPlaceInfo();
-      this._navigateToResultsPage(information);
+      this._navigateToDetectedPlace(information);
     } catch (error) {
       /* Errors come from the specific API methods.
       --- ERRORS ---
@@ -36,11 +36,6 @@ class ApiScreen extends React.Component {
     this.setState({loading: false});
   };
 
-  _navigateToResultsPage = results =>
-    this.props.navigation.navigate('Results', {
-      results: results,
-    });
-
   _fetchPlaceInfo = async () => {
     // const detectedName = await googleOcr(this.state.base64);
     const detectedName = 'Niko Romito Space Milan';
@@ -52,29 +47,16 @@ class ApiScreen extends React.Component {
     return await getPlaceDetails(detectedPlace);
   };
 
+  _navigateToDetectedPlace = results =>
+    this.props.navigation.navigate('Results', {
+      results: results,
+    });
+
   navigateToPlace = placeIndex =>
     this.props.navigation.navigate('Results', {
       results: this.state.nearbyPlaces[placeIndex],
+      isNearbyPlace: true,
     });
-
-  // Returns this section with actions if nothing was found by API.
-  _renderErrorSection = apiError => {
-    return (
-      <View>
-        <Text>{apiError}</Text>
-        <Button
-          title="New Photo"
-          onPress={() => this.props.navigation.navigate('Home')}
-        />
-        {this.state.nearbyPlaces.length !== 0 && (
-          <ListOfPlaces
-            places={this.state.nearbyPlaces}
-            navigateToPlace={index => this.navigateToPlace(index)}
-          />
-        )}
-      </View>
-    );
-  };
 
   render() {
     const {loading, detectedName, apiError} = this.state;

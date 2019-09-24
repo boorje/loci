@@ -84,6 +84,7 @@ class HomeScreen extends React.Component {
   navigateToPlace = placeIndex =>
     this.props.navigation.navigate('Results', {
       results: this.state.nearbyPlaces[placeIndex],
+      isNearbyPlace: true,
     });
 
   render() {

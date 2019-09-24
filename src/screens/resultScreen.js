@@ -15,78 +15,90 @@ import {GOOGLE_API_KEY} from '../constants/apiKeys';
 //!DELETE FROM HERE
 import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
+import getReviews from '../helpers/googleAPI/getReviews';
 
 class ResultScreen extends React.Component {
   state = {
     name: '',
-    type: '', // TODO
+    type: '',
     rating: null,
-    price_level: '$$$', // TODO
-    photo: '',
-    review: '',
-    user_ratings_total: '45', // TODO
-    images: [],
-    users: [],
+    user_ratings_total: '',
+    price_level: '',
+    photos: [],
+    reviews: [],
 
-    showImages: true,
+    showPhotos: true,
     height: 0,
     resultsAPI: this.props.navigation.getParam('results', null),
+    isNearbyPlace: this.props.navigation.getParam('isNearbyPlace', false),
   };
 
-  //! DELETE
+  //TODO: Update users
   componentDidMount = async () => {
     try {
-      const detectedName = 'Maoji Street Food';
+      const {
+        place_id,
+        name,
+        types,
+        rating,
+        user_ratings_total,
+        price_level,
+        photos,
+      } = this.state.resultsAPI;
 
-      // Searches for a place_id in GMP from the name detected
-      const detectedPlace = await searchPlace(detectedName);
+      let {reviews} = this.state.resultsAPI;
 
-      // Searches for the details of the location from the place_id
-      const results = await getPlaceDetails(detectedPlace);
+      if (this.state.isNearbyPlace) {
+        reviews = await getReviews(place_id);
+      }
 
       this.setState({
-        name: results.result.name,
-        rating: results.result.rating,
-        images: this._extractUrl(results.result.photos),
-        users: this._extractUser(results.result.reviews),
+        name,
+        type: types ? types[0] : null,
+        rating: rating ? rating : null,
+        user_ratings_total: user_ratings_total ? user_ratings_total : null,
+        price_level: price_level ? this._renderPrice(price_level) : null,
+        photos: photos ? this._extractUrl(photos) : null,
+        reviews: reviews ? this._extractUserReview(reviews) : null,
       });
-
-      console.log(results.result.types);
     } catch (error) {
       alert(error);
     }
   };
 
-  _extractUser = info => {
-    let users = info.map((user, index) => ({
+  _renderPrice = price => {
+    let price_level = '';
+    for (let index = 0; index < price; index++) {
+      price_level += '$';
+    }
+    return price_level;
+  };
+
+  _extractUserReview = review => {
+    return review.map((user, index) => ({
       id: index,
-      name: user.author_name,
+      author_name: user.author_name,
       rating: user.rating,
-      time: user.relative_time_description,
+      time: user.time,
       text: user.text,
     }));
-    return users;
   };
 
   _extractUrl = info => {
-    let arrayObjects = info.map(photo => String(photo.photo_reference));
-    let url = 'https://maps.googleapis.com/maps/api/place/photo?';
-    let maxwidth = 'maxwidth=400';
-    let reference = '&photoreference=';
-    let key = '&key=' + GOOGLE_API_KEY;
-    let photoReferences = arrayObjects.map(
+    const arrayObjects = info.map(photo => String(photo.photo_reference));
+    const url = 'https://maps.googleapis.com/maps/api/place/photo?';
+    const maxwidth = 'maxwidth=400';
+    const reference = '&photoreference=';
+    const key = '&key=' + GOOGLE_API_KEY;
+    return arrayObjects.map(
       string => url + maxwidth + reference + string + key,
     );
-
-    return photoReferences;
   };
 
-  _switchToImages = () => {
-    if (this.state.showImages == false) this.setState({showImages: true});
-  };
-
-  _switchToReviews = () => {
-    if (this.state.showImages == true) this.setState({showImages: false});
+  _toggleTabMenu = () => {
+    this.state.showPhotos === true
+      ? this.setState({showPhotos: false})
+      : this.setState({showPhotos: true});
   };
 
   _onLayout = e => {
@@ -122,27 +134,27 @@ class ResultScreen extends React.Component {
           <View style={styles.menu}>
             <TouchableOpacity
               style={
-                this.state.showImages ? styles.container : styles.container2
+                this.state.showPhotos ? styles.container : styles.container2
               }
-              onPress={this._switchToImages}>
+              onPress={this._toggleTabMenu}>
               <Text style={{fontFamily: 'Avenir Next'}}> Bilder </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={
-                !this.state.showImages ? styles.container : styles.container2
+                !this.state.showPhotos ? styles.container : styles.container2
               }
-              onPress={this._switchToReviews}>
+              onPress={this._toggleTabMenu}>
               <Text style={{fontFamily: 'Avenir Next'}}> Recensioner </Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.slideshow} onLayout={this._onLayout}>
-          {this.state.showImages ? (
-            <Slideshow images={this.state.images} height={this.state.height} />
+          {this.state.showPhotos ? (
+            <Slideshow images={this.state.photos} height={this.state.height} />
           ) : (
             <ScrollView keyboardShouldPersistTaps="always">
-              <Review data={this.state.users} />
+              <Review reviews={this.state.reviews} />
             </ScrollView>
           )}
         </View>
