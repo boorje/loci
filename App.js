@@ -4,7 +4,6 @@ import {createStackNavigator} from 'react-navigation-stack';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import HomeScreen from './src/screens/homeScreen';
-import ApiScreen from './src/screens/apiScreen';
 import ResultScreen from './src/screens/resultScreen';
 
 Icon.loadFont();
@@ -12,9 +11,6 @@ Icon.loadFont();
 const AppNavigator = createStackNavigator({
   Home: {
     screen: HomeScreen,
-  },
-  Api: {
-    screen: ApiScreen,
   },
   Results: {
     screen: ResultScreen,
