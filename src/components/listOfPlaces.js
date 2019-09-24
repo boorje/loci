@@ -1,6 +1,9 @@
 import React from 'react';
 import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import PropTypes from 'prop-types';
+import Stars from '../components/stars';
+import colors from '../constants/colors';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const _classifyDistanceAway = distance => {
   if (distance < 500) {
@@ -24,22 +27,35 @@ const RenderPlace = props => {
     : null;
   return (
     <TouchableOpacity
-      style={{marginBottom: 10}}
+      style={styles.list}
       onPress={() => props.navigateToPlace(place.index)}>
-      <Text>
-        {name} - {type} - {isOpen} - {distanceAway}
-      </Text>
-      <Text>
-        Rating: {rating} of {user_ratings_total} reviews
-      </Text>
+      <View>
+        <View style={{flexDirection: 'row'}}>
+          <Text style={{fontFamily: 'Avenir Next'}}>{name}</Text>
+        </View>
+        <Stars style={styles.stars} rating={rating} starSize={17} />
+      </View>
     </TouchableOpacity>
   );
 };
 
+const _flatListItemSeparator = () => <View style={styles.separator} />;
+
 const ListOfPlaces = props => {
   return (
-    <View style={{display: 'flex', height: 150, alignItems: 'center'}}>
-      <Text style={{marginBottom: 20}}>Places near you.</Text>
+    <View style={{flex: 1, backgroundColor: colors.paper}}>
+      <View style={styles.headView}>
+        <Text style={styles.headLine}>Places nearby</Text>
+        <Icon.Button
+          backgroundColor="transparent"
+          underlayColor="transparent"
+          marginRight={10}
+          size={20}
+          name={props.name}
+          color={colors.charcoal}
+          onPress={() => props.showList()}
+        />
+      </View>
       <FlatList
         data={props.places}
         renderItem={place => (
@@ -49,6 +65,7 @@ const ListOfPlaces = props => {
           />
         )}
         keyExtractor={place => place.id}
+        ItemSeparatorComponent={_flatListItemSeparator}
       />
     </View>
   );
@@ -56,7 +73,41 @@ const ListOfPlaces = props => {
 
 export default ListOfPlaces;
 
+const styles = StyleSheet.create({
+  headView: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  list: {
+    flex: 1,
+    marginBottom: 10,
+    marginLeft: '3%',
+  },
+  headLine: {
+    marginLeft: '3%',
+    color: colors.charcoal,
+    fontSize: 20,
+    fontWeight: 'bold',
+    fontFamily: 'Avenir Next',
+  },
+  separator: {
+    height: 1,
+    width: '97%',
+    marginLeft: '3%',
+    marginRight: '0%',
+    marginBottom: 3,
+    marginTop: 3,
+    backgroundColor: '#607D8B',
+  },
+  stars: {justifyContent: 'flex-start'},
+});
+
 ListOfPlaces.proptypes = {
   places: PropTypes.array.isRequired,
   navigateToPlace: PropTypes.func.isRequired,
+  showList: PropTypes.func.isRequired,
+  name: PropTypes.string.isRequired,
 };

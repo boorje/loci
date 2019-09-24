@@ -47,14 +47,20 @@ class ResultScreen extends React.Component {
       this.setState({
         name: results.result.name,
         rating: results.result.rating,
+        type: this._extractType(results.result.types[0]),
         images: this._extractUrl(results.result.photos),
         users: this._extractUser(results.result.reviews),
       });
-
-      console.log(results.result.types);
     } catch (error) {
       alert(error);
     }
+  };
+
+  _extractType = type => {
+    if (type.includes('_')) {
+      type = type.replace('_', ' ');
+    }
+    return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
   _extractUser = info => {

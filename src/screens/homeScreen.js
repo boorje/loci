@@ -1,5 +1,5 @@
 import React from 'react';
-import {View} from 'react-native';
+import {View, LayoutAnimation, NativeModules} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 
 // --- Components ---
@@ -11,12 +11,28 @@ import findNearbyPlaces from '../helpers/googleAPI/findNearbyPlaces';
 import getPosition from '../helpers/googleAPI/getPosition';
 import getDistanceTo from '../helpers/googleAPI/getDistanceTo';
 
+// För att det ska funka på Android
+const {UIManager} = NativeModules;
+UIManager.setLayoutAnimationEnabledExperimental &&
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+
 class HomeScreen extends React.Component {
   state = {
     foundLocation: false,
     userLocation: {latitude: '', longitude: ''},
     takenPhoto: {},
     nearbyPlaces: [],
+    showList: false,
+  };
+
+  showList = () => {
+    if (this.state.showList === true) {
+      LayoutAnimation.configureNext(spring);
+      this.setState({showList: false});
+    } else {
+      LayoutAnimation.configureNext(spring);
+      this.setState({showList: true});
+    }
   };
 
   componentDidMount = async () => {
@@ -90,16 +106,35 @@ class HomeScreen extends React.Component {
     const {nearbyPlaces} = this.state;
     return (
       <View style={{flex: 1}}>
-        <Camera takePhoto={photo => this.takePhoto(photo)} />
+        <View style={{flex: 5, zIndex: 10}}>
+          <Camera takePhoto={photo => this.takePhoto(photo)} />
+        </View>
         {nearbyPlaces.length !== 0 && (
-          <ListOfPlaces
-            places={this.state.nearbyPlaces}
-            navigateToPlace={index => this.navigateToPlace(index)}
-          />
+          <View style={{flex: this.state.showList ? 5 : 1}}>
+            <ListOfPlaces
+              places={this.state.nearbyPlaces}
+              navigateToPlace={index => this.navigateToPlace(index)}
+              showList={() => this.showList()}
+              name={this.state.showList ? 'arrow-down' : 'arrow-up'}
+            />
+          </View>
         )}
       </View>
     );
   }
 }
+
+let spring = {
+  duration: 300,
+  create: {
+    type: LayoutAnimation.Types.spring,
+    property: LayoutAnimation.Properties.scaleXY,
+    springDamping: 1,
+  },
+  update: {
+    type: LayoutAnimation.Types.spring,
+    springDamping: 1,
+  },
+};
 
 export default HomeScreen;
