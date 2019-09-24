@@ -11,7 +11,7 @@ Icon.loadFont();
 
 const AppNavigator = createStackNavigator({
   Home: {
-    screen: HomeScreen,
+    screen: ResultScreen,
   },
   Api: {
     screen: ApiScreen,
