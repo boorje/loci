@@ -13,8 +13,8 @@ import Review from '../components/review';
 import {GOOGLE_API_KEY} from '../constants/apiKeys';
 
 //!DELETE FROM HERE
-import placeSearchGMP from '../helpers/placeSearchGMP';
-import placeDetailsGMP from '../helpers/placeDetailsGMP';
+import searchPlace from '../helpers/googleAPI/searchPlace';
+import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
 
 class ResultScreen extends React.Component {
   state = {
@@ -39,10 +39,10 @@ class ResultScreen extends React.Component {
       const detectedName = 'Maoji Street Food';
 
       // Searches for a place_id in GMP from the name detected
-      const detectedPlace = await placeSearchGMP(detectedName);
+      const detectedPlace = await searchPlace(detectedName);
 
       // Searches for the details of the location from the place_id
-      const results = await placeDetailsGMP(detectedPlace);
+      const results = await getPlaceDetails(detectedPlace);
 
       this.setState({
         name: results.result.name,
@@ -207,5 +207,3 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
 });
-
-
