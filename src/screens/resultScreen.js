@@ -1,10 +1,11 @@
 import React from 'react';
 import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
+  SafeAreaView,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import colors from '../constants/colors';
 import Stars from '../components/stars';
@@ -17,8 +18,25 @@ import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
 import getReviews from '../helpers/googleAPI/getReviews';
 
+const ErrorScreen = errorMsg => {
+  alert(errorMsg);
+  return (
+    <SafeAreaView>
+      <Text>
+        An error as occurred: -- {errorMsg}. Below you have nearby places
+      </Text>
+    </SafeAreaView>
+  );
+};
+
 class ResultScreen extends React.Component {
   state = {
+    thePlace: {},
+    apiError: '',
+    showPhotos: true,
+    height: 0,
+
+    // the place information
     name: '',
     type: '',
     rating: null,
@@ -27,43 +45,77 @@ class ResultScreen extends React.Component {
     photos: [],
     reviews: [],
 
-    showPhotos: true,
-    height: 0,
-    resultsAPI: this.props.navigation.getParam('results', null),
+    // From homescreen
+    base64: this.props.navigation.getParam('base64', null),
+    nearbyPlaces: this.props.navigation.getParam('nearbyPlaces', null),
+    userLocation: this.props.navigation.getParam('userLocation', null),
+    selectedPlace: this.props.navigation.getParam('selectedPlace', null),
     isNearbyPlace: this.props.navigation.getParam('isNearbyPlace', false),
   };
 
   //TODO: Update users
   componentDidMount = async () => {
     try {
-      const {
-        place_id,
-        name,
-        types,
-        rating,
-        user_ratings_total,
-        price_level,
-        photos,
-      } = this.state.resultsAPI;
-
-      let {reviews} = this.state.resultsAPI;
-
-      if (this.state.isNearbyPlace) {
-        reviews = await getReviews(place_id);
-      }
-
-      this.setState({
-        name,
-        type: types ? types[0] : null,
-        rating: rating ? rating : null,
-        user_ratings_total: user_ratings_total ? user_ratings_total : null,
-        price_level: price_level ? this._renderPrice(price_level) : null,
-        photos: photos ? this._extractUrl(photos) : null,
-        reviews: reviews ? this._extractUserReview(reviews) : null,
-      });
+      const placeInfo = await this._loadInfo();
+      await this._updateStateWith(placeInfo);
     } catch (error) {
-      alert(error);
+      // OCR - text not found -> present nearby locations or retake photo
+      // Google API - name not found -> present nearby locations or retake photo. Add description on how to take proper photo
+      this.setState({apiError: error});
     }
+  };
+
+  _loadInfo = async () => {
+    let thePlaceInfo;
+    // if photo is taken in homescreen
+    if (!this.state.isNearbyPlace) {
+      thePlaceInfo = await this._fetchPlaceInfoFrom(this.state.base64);
+      // if place is selected from nearby places
+    } else {
+      thePlaceInfo = this.state.selectedPlace;
+      // add the reviews
+    }
+
+    return thePlaceInfo;
+  };
+
+  _updateStateWith = async placeInfo => {
+    const {
+      place_id,
+      name,
+      types,
+      rating,
+      user_ratings_total,
+      price_level,
+      photos,
+    } = placeInfo;
+
+    let {reviews} = placeInfo;
+
+    if (this.state.isNearbyPlace) {
+      reviews = await getReviews(place_id);
+    }
+
+    this.setState({
+      name,
+      type: types ? types[0] : null,
+      rating: rating ? rating : null,
+      user_ratings_total: user_ratings_total ? user_ratings_total : null,
+      price_level: price_level ? this._renderPrice(price_level) : null,
+      photos: photos ? this._extractUrl(photos) : null,
+      reviews: reviews ? this._extractUserReview(reviews) : null,
+    });
+  };
+
+  _fetchPlaceInfoFrom = async base64 => {
+    // const detectedName = await googleOcr(base64);
+    const detectedName = 'Niko Romito Space Milan';
+    // this.setState({detectedName});
+    const detectedPlace = await searchPlace(
+      detectedName,
+      this.state.userLocation,
+    );
+    return await getPlaceDetails(detectedPlace);
   };
 
   _renderPrice = price => {
@@ -109,7 +161,7 @@ class ResultScreen extends React.Component {
 
   render() {
     return (
-      <View style={{flex: 1, backgroundColor: colors.paper}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: colors.paper}}>
         <View>
           <View style={{alignItems: 'center'}}>
             <Text style={styles.name}>{this.state.name}</Text>
@@ -130,7 +182,6 @@ class ResultScreen extends React.Component {
               </Text>
             </Text>
           </View>
-
           <View style={styles.menu}>
             <TouchableOpacity
               style={
@@ -148,7 +199,6 @@ class ResultScreen extends React.Component {
             </TouchableOpacity>
           </View>
         </View>
-
         <View style={styles.slideshow} onLayout={this._onLayout}>
           {this.state.showPhotos ? (
             <Slideshow images={this.state.photos} height={this.state.height} />
@@ -158,7 +208,7 @@ class ResultScreen extends React.Component {
             </ScrollView>
           )}
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 }

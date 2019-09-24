@@ -1,5 +1,5 @@
 import React from 'react';
-import {View} from 'react-native';
+import {SafeAreaView} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 
 // --- Components ---
@@ -71,7 +71,7 @@ class HomeScreen extends React.Component {
   };
 
   _usePhoto = base64 => {
-    this.props.navigation.navigate('Api', {
+    this.props.navigation.navigate('Results', {
       base64: base64,
       nearbyPlaces: this.state.nearbyPlaces,
       userLocation: {
@@ -83,14 +83,14 @@ class HomeScreen extends React.Component {
 
   navigateToPlace = placeIndex =>
     this.props.navigation.navigate('Results', {
-      results: this.state.nearbyPlaces[placeIndex],
+      selectedPlace: this.state.nearbyPlaces[placeIndex],
       isNearbyPlace: true,
     });
 
   render() {
     const {nearbyPlaces} = this.state;
     return (
-      <View style={{flex: 1}}>
+      <SafeAreaView style={{flex: 1}}>
         <Camera takePhoto={photo => this.takePhoto(photo)} />
         {nearbyPlaces.length !== 0 && (
           <ListOfPlaces
@@ -98,7 +98,7 @@ class HomeScreen extends React.Component {
             navigateToPlace={index => this.navigateToPlace(index)}
           />
         )}
-      </View>
+      </SafeAreaView>
     );
   }
 }
