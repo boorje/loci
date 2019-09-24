@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 const RenderPlace = props => {
   const {place} = props;
   //TODO: Calculate the distance to the places
-  const {name, rating, user_ratings_total} = place.item;
+  const {name, distanceTo, rating, user_ratings_total} = place.item;
   const type = place.item.types[0];
   const isOpen = place.item.opening_hours
     ? place.item.opening_hours.open_now
@@ -17,7 +17,7 @@ const RenderPlace = props => {
       style={{marginBottom: 10}}
       onPress={() => props.navigateToPlace(place.index)}>
       <Text>
-        {name} - {type} - {isOpen}
+        {name} - {type} - {isOpen} - {distanceTo}m
       </Text>
       <Text>
         Rating: {rating} of {user_ratings_total} reviews

@@ -9,6 +9,7 @@ import Camera from '../components/camera';
 import ListOfPlaces from '../components/listOfPlaces';
 import findNearbyPlaces from '../helpers/googleAPI/findNearbyPlaces';
 import getPosition from '../helpers/googleAPI/getPosition';
+import getDistanceTo from '../helpers/googleAPI/getDistanceTo';
 
 class HomeScreen extends React.Component {
   state = {
@@ -22,12 +23,24 @@ class HomeScreen extends React.Component {
     try {
       await this._getCoordinates();
       if (this.state.foundLocation) {
-        const nearbyPlaces = await findNearbyPlaces();
+        let nearbyPlaces = await findNearbyPlaces();
+        nearbyPlaces = this._addDistanceTo(nearbyPlaces);
         this.setState({nearbyPlaces});
       }
     } catch (error) {
       this.setState({foundLocation: false});
     }
+  };
+
+  _addDistanceTo = places => {
+    const n = 20;
+    return places.slice(0, n).map(place => {
+      place.distanceTo = getDistanceTo(
+        this.state.userLocation,
+        place.geometry.location,
+      );
+      return place;
+    });
   };
 
   _getCoordinates = async () => {

@@ -57,7 +57,7 @@ class ApiScreen extends React.Component {
       results: this.state.nearbyPlaces[placeIndex],
     });
 
-  // Returns a section with actions if nothing was found by API.
+  // Returns this section with actions if nothing was found by API.
   _renderErrorSection = apiError => {
     return (
       <View>
