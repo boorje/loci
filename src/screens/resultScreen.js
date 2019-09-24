@@ -103,7 +103,7 @@ class ResultScreen extends React.Component {
 
   render() {
     return (
-      <View style={{flex: 1, backgroundColor: colors.paper}}>
+      <View style={{flex: 1, backgroundColor: 'white'}}>
         <View>
           <View style={{alignItems: 'center'}}>
             <Text style={styles.name}>{this.state.name}</Text>
