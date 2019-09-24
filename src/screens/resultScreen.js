@@ -1,35 +1,95 @@
 import React from 'react';
-import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 import colors from '../constants/colors';
 import Stars from '../components/stars';
 import Slideshow from '../components/slideshow';
-import {Dimensions} from 'react-native';
+import Review from '../components/review';
+import {GOOGLE_API_KEY} from '../constants/apiKeys';
+
+//!DELETE FROM HERE
+import placeSearchGMP from '../helpers/placeSearchGMP';
+import placeDetailsGMP from '../helpers/placeDetailsGMP';
 
 class ResultScreen extends React.Component {
   state = {
-    results: {
-      name: 'Gelateria Stracciatella',
-      type: 'Glassbar',
-      rating: '2',
-      price_level: '$$$',
-      photo: '',
-      review: '',
-      user_ratings_total: '45',
-    },
+    name: '',
+    type: '', // TODO
+    rating: null,
+    price_level: '$$$', // TODO
+    photo: '',
+    review: '',
+    user_ratings_total: '45', // TODO
+    images: [],
+    users: [],
+
     showImages: true,
     height: 0,
     resultsAPI: this.props.navigation.getParam('results', null),
   };
 
-  switchToImages = () => {
-    if (this.state.showImages === false) this.setState({showImages: true});
+  //! DELETE
+  componentDidMount = async () => {
+    try {
+      const detectedName = 'Maoji Street Food';
+
+      // Searches for a place_id in GMP from the name detected
+      const detectedPlace = await placeSearchGMP(detectedName);
+
+      // Searches for the details of the location from the place_id
+      const results = await placeDetailsGMP(detectedPlace);
+
+      this.setState({
+        name: results.result.name,
+        rating: results.result.rating,
+        images: this._extractUrl(results.result.photos),
+        users: this._extractUser(results.result.reviews),
+      });
+
+      console.log(results.result.types);
+    } catch (error) {
+      alert(error);
+    }
   };
 
-  switchToReviews = () => {
-    if (this.state.showImages === true) this.setState({showImages: false});
+  _extractUser = info => {
+    let users = info.map((user, index) => ({
+      id: index,
+      name: user.author_name,
+      rating: user.rating,
+      time: user.relative_time_description,
+      text: user.text,
+    }));
+    return users;
   };
 
-  onLayout = e => {
+  _extractUrl = info => {
+    let arrayObjects = info.map(photo => String(photo.photo_reference));
+    let url = 'https://maps.googleapis.com/maps/api/place/photo?';
+    let maxwidth = 'maxwidth=400';
+    let reference = '&photoreference=';
+    let key = '&key=' + GOOGLE_API_KEY;
+    let photoReferences = arrayObjects.map(
+      string => url + maxwidth + reference + string + key,
+    );
+
+    return photoReferences;
+  };
+
+  _switchToImages = () => {
+    if (this.state.showImages == false) this.setState({showImages: true});
+  };
+
+  _switchToReviews = () => {
+    if (this.state.showImages == true) this.setState({showImages: false});
+  };
+
+  _onLayout = e => {
     this.setState({
       height: e.nativeEvent.layout.height,
     });
@@ -37,54 +97,90 @@ class ResultScreen extends React.Component {
 
   render() {
     return (
-      <View style={{flex: 1}}>
+      <View style={{flex: 1, backgroundColor: colors.paper}}>
         <View>
           <View style={{alignItems: 'center'}}>
-            <Text style={styles.name}>{this.state.results.name}</Text>
-            <Text style={styles.type}>- {this.state.results.type} -</Text>
-            <Text style={styles.type}>{this.state.results.price_level}</Text>
+            <Text style={styles.name}>{this.state.name}</Text>
+            <Text style={styles.type}>{this.state.type}</Text>
+            <Text style={styles.type}>{this.state.price_level}</Text>
           </View>
-
           <Stars
             style={styles.stars}
-            rating={parseInt(this.state.results.rating)}
+            rating={this.state.rating}
+            starSize={50}
           />
+          <View style={{alignItems: 'center'}}>
+            <Text style={styles.review}>
+              {this.state.rating}
+              <Text style={styles.review2}>
+                {' '}
+                baserat på {this.state.user_ratings_total} recensioner
+              </Text>
+            </Text>
+          </View>
+
           <View style={styles.menu}>
             <TouchableOpacity
-              style={styles.container}
-              onPress={this.switchToImages}>
-              <Text> Bilder </Text>
+              style={
+                this.state.showImages ? styles.container : styles.container2
+              }
+              onPress={this._switchToImages}>
+              <Text style={{fontFamily: 'Avenir Next'}}> Bilder </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.container}
-              onPress={this.switchToReviews}>
-              <Text> Recensioner </Text>
+              style={
+                !this.state.showImages ? styles.container : styles.container2
+              }
+              onPress={this._switchToReviews}>
+              <Text style={{fontFamily: 'Avenir Next'}}> Recensioner </Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        <View style={styles.slideshow} onLayout={this.onLayout}>
-          {this.state.showImages && <Slideshow height={this.state.height} />}
+        <View style={styles.slideshow} onLayout={this._onLayout}>
+          {this.state.showImages ? (
+            <Slideshow images={this.state.images} height={this.state.height} />
+          ) : (
+            <ScrollView keyboardShouldPersistTaps="always">
+              <Review data={this.state.users} />
+            </ScrollView>
+          )}
         </View>
       </View>
     );
   }
 }
 
+export default ResultScreen;
+
 const styles = StyleSheet.create({
   name: {
     marginTop: 50,
+    fontFamily: 'Avenir Next',
     color: colors.charcoal,
     fontWeight: 'bold',
     fontSize: 30,
   },
   type: {
     marginTop: 10,
+    fontFamily: 'Avenir Next',
     color: colors.charcoal,
     fontSize: 18,
   },
+  review: {
+    marginTop: 5,
+    fontFamily: 'Avenir Next',
+    color: colors.charcoal,
+    fontSize: 20,
+  },
+  review2: {
+    marginTop: 5,
+    fontFamily: 'Avenir Next',
+    color: colors.charcoal,
+    fontSize: 14,
+  },
   stars: {
-    marginTop: 30,
+    marginTop: 20,
     marginLeft: 70,
     marginRight: 70,
   },
@@ -92,14 +188,24 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: colors.paper,
+  },
+  container2: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 10,
+  },
   menu: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
     marginTop: 20,
     borderWidth: 1,
-    padding: 10,
     borderColor: '#d6d7da',
+    backgroundColor: 'white',
   },
 });
 
-export default ResultScreen;
+

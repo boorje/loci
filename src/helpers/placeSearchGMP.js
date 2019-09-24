@@ -1,9 +1,7 @@
 import {GOOGLE_API_KEY} from '../constants/apiKeys';
 
-const slugifySearchText = searchText => searchText.replace(' ', '%20');
-
 const placeSearchGMP = async searchText => {
-  const slugText = slugifySearchText(searchText);
+  const slugText = encodeURIComponent(searchText);
   const fields = 'place_id';
   const parameters = `input=${slugText}&inputtype=textquery&fields=${fields}&key=${GOOGLE_API_KEY}`;
   const GMP_URL = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?${parameters}`;
