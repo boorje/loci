@@ -1,5 +1,11 @@
-import {GOOGLE_API_KEY} from '../constants/apiKeys';
+import {GOOGLE_API_KEY} from '../../constants/apiKeys';
 
+/**
+ * Connects to the Google Vision API to search for text in an image
+ *
+ * @param {base64} base64 The image to search for text in
+ * @returns {string}
+ */
 const googleOcr = async base64 => {
   return new Promise(async (resolve, reject) => {
     try {
