@@ -1,98 +1,172 @@
 import React from 'react';
 import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
+  Button,
+  SafeAreaView,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+
+// -- Components --
 import colors from '../constants/colors';
 import Stars from '../components/stars';
 import Slideshow from '../components/slideshow';
 import Review from '../components/review';
 import {GOOGLE_API_KEY} from '../constants/apiKeys';
 
-//!DELETE FROM HERE
+// -- Helper Functions --
 import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
+import getReviews from '../helpers/googleAPI/getReviews';
 
+const ErrorScreen = errorMsg => {
+  alert(errorMsg);
+  return (
+    <SafeAreaView>
+      <Text>
+        An error as occurred: -- {errorMsg}. Below you have nearby places
+      </Text>
+      <Button title="Retake photo" />
+    </SafeAreaView>
+  );
+};
+
+// TODO: Add a screen/component which is rendered when an error occurs, i.e. text/place wasn't found
 class ResultScreen extends React.Component {
   state = {
-    name: '',
-    type: '', // TODO
-    rating: null,
-    price_level: '$$$', // TODO
-    photo: '',
-    review: '',
-    user_ratings_total: '45', // TODO
-    images: [],
-    users: [],
-
-    showImages: true,
+    thePlace: {},
+    loading: true,
+    apiError: '',
+    showPhotos: true,
     height: 0,
-    resultsAPI: this.props.navigation.getParam('results', null),
+
+    // The place information
+    name: '',
+    type: '',
+    rating: null,
+    user_ratings_total: '',
+    price_level: '',
+    photos: [],
+    reviews: [],
+
+    // From homescreen
+    base64: this.props.navigation.getParam('base64', null),
+    nearbyPlaces: this.props.navigation.getParam('nearbyPlaces', null),
+    userLocation: this.props.navigation.getParam('userLocation', null),
+    selectedPlace: this.props.navigation.getParam('selectedPlace', null),
+    isNearbyPlace: this.props.navigation.getParam('isNearbyPlace', false),
   };
 
-  //! DELETE
   componentDidMount = async () => {
     try {
-      const detectedName = 'Maoji Street Food';
-
-      // Searches for a place_id in GMP from the name detected
-      const detectedPlace = await searchPlace(detectedName);
-
-      // Searches for the details of the location from the place_id
-      const results = await getPlaceDetails(detectedPlace);
-
-      this.setState({
-        name: results.result.name,
-        rating: results.result.rating,
-        type: this._extractType(results.result.types[0]),
-        images: this._extractUrl(results.result.photos),
-        users: this._extractUser(results.result.reviews),
-      });
+      const placeInfo = await this._loadInfo();
+      console.log('1');
+      await this._updateStateWith(placeInfo);
+      console.log('2');
     } catch (error) {
-      alert(error);
+      // OCR - text not found -> present nearby locations or retake photo
+      // Google API - name not found -> present nearby locations or retake photo. Add description on how to take proper photo
+      alert('Something went wrong. Please try again');
+      this.setState({apiError: error});
     }
+    this.setState({loading: false});
   };
 
-  _extractType = type => {
+  _loadInfo = async () => {
+    let thePlaceInfo;
+    // if photo is taken in homescreen
+    if (!this.state.isNearbyPlace) {
+      thePlaceInfo = await this._fetchPlaceInfoFrom(this.state.base64);
+      // if place is selected from nearby places
+    } else {
+      thePlaceInfo = this.state.selectedPlace;
+      // add the reviews
+    }
+
+    return thePlaceInfo;
+  };
+
+  _updateStateWith = async placeInfo => {
+    const {
+      place_id,
+      name,
+      types,
+      rating,
+      user_ratings_total,
+      price_level,
+      photos,
+    } = placeInfo;
+
+    let {reviews} = placeInfo;
+
+    if (this.state.isNearbyPlace) {
+      reviews = await getReviews(place_id);
+    }
+
+    this.setState({
+      name,
+      type: types ? this._modifyType(types[0]) : null,
+      rating: rating ? rating : null,
+      user_ratings_total: user_ratings_total ? user_ratings_total : null,
+      price_level: price_level ? this._renderDollarsFrom(price_level) : null,
+      photos: photos ? this._extractUrl(photos) : null,
+      reviews: reviews ? this._extractReviewInfo(reviews) : null,
+    });
+  };
+
+  _fetchPlaceInfoFrom = async base64 => {
+    // const detectedName = await googleOcr(base64);
+    const detectedName = 'Niko Romito Space Milan';
+    // this.setState({detectedName});
+    const detectedPlace = await searchPlace(
+      detectedName,
+      this.state.userLocation,
+    );
+    return await getPlaceDetails(detectedPlace);
+  };
+
+  _renderDollarsFrom = price => {
+    let price_level = '';
+    for (let index = 0; index < price; index++) {
+      price_level += '$';
+    }
+    return price_level;
+  };
+
+  _modifyType = type => {
     if (type.includes('_')) {
       type = type.replace('_', ' ');
     }
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
-  _extractUser = info => {
-    let users = info.map((user, index) => ({
+  _extractReviewInfo = review => {
+    return review.map((review, index) => ({
       id: index,
-      name: user.author_name,
-      rating: user.rating,
-      time: user.relative_time_description,
-      text: user.text,
+      author_name: review.author_name,
+      rating: review.rating,
+      time: review.time,
+      text: review.text,
     }));
-    return users;
   };
 
   _extractUrl = info => {
-    let arrayObjects = info.map(photo => String(photo.photo_reference));
-    let url = 'https://maps.googleapis.com/maps/api/place/photo?';
-    let maxwidth = 'maxwidth=400';
-    let reference = '&photoreference=';
-    let key = '&key=' + GOOGLE_API_KEY;
-    let photoReferences = arrayObjects.map(
+    const arrayObjects = info.map(photo => String(photo.photo_reference));
+    const url = 'https://maps.googleapis.com/maps/api/place/photo?';
+    const maxwidth = 'maxwidth=400';
+    const reference = '&photoreference=';
+    const key = '&key=' + GOOGLE_API_KEY;
+    return arrayObjects.map(
       string => url + maxwidth + reference + string + key,
     );
-
-    return photoReferences;
   };
 
-  _switchToImages = () => {
-    if (this.state.showImages == false) this.setState({showImages: true});
-  };
-
-  _switchToReviews = () => {
-    if (this.state.showImages == true) this.setState({showImages: false});
+  _toggleTabMenu = () => {
+    this.state.showPhotos === true
+      ? this.setState({showPhotos: false})
+      : this.setState({showPhotos: true});
   };
 
   _onLayout = e => {
@@ -103,7 +177,7 @@ class ResultScreen extends React.Component {
 
   render() {
     return (
-      <View style={{flex: 1, backgroundColor: 'white'}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         <View>
           <View style={{alignItems: 'center'}}>
             <Text style={styles.name}>{this.state.name}</Text>
@@ -124,35 +198,33 @@ class ResultScreen extends React.Component {
               </Text>
             </Text>
           </View>
-
           <View style={styles.menu}>
             <TouchableOpacity
               style={
-                this.state.showImages ? styles.container : styles.container2
+                this.state.showPhotos ? styles.container : styles.container2
               }
-              onPress={this._switchToImages}>
+              onPress={this._toggleTabMenu}>
               <Text style={{fontFamily: 'Avenir Next'}}> Bilder </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={
-                !this.state.showImages ? styles.container : styles.container2
+                !this.state.showPhotos ? styles.container : styles.container2
               }
-              onPress={this._switchToReviews}>
+              onPress={this._toggleTabMenu}>
               <Text style={{fontFamily: 'Avenir Next'}}> Recensioner </Text>
             </TouchableOpacity>
           </View>
         </View>
-
         <View style={styles.slideshow} onLayout={this._onLayout}>
-          {this.state.showImages ? (
-            <Slideshow images={this.state.images} height={this.state.height} />
+          {this.state.showPhotos ? (
+            <Slideshow images={this.state.photos} height={this.state.height} />
           ) : (
             <ScrollView keyboardShouldPersistTaps="always">
-              <Review data={this.state.users} />
+              <Review reviews={this.state.reviews} />
             </ScrollView>
           )}
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 }
