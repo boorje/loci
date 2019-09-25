@@ -19,6 +19,7 @@ import {GOOGLE_API_KEY} from '../constants/apiKeys';
 // -- Helper Functions --
 import googleOcr from '../helpers/googleAPI/googleOcr';
 import searchPlace from '../helpers/googleAPI/searchPlace';
+import searchTextPlaces from '../helpers/googleAPI/searchTextPlaces';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
 import getReviews from '../helpers/googleAPI/getReviews';
 
@@ -50,17 +51,12 @@ class ResultScreen extends React.Component {
     photos: [],
     reviews: [],
 
-    // From homescreen
-    // -- Photo
-    nearbyPlaces: this.props.navigation.getParam('nearbyPlaces', null), //? Is this needed here?
-    userLocation: this.props.navigation.getParam('userLocation', null), //? Is this needed here?
-    // -- All
     selectedType: this.props.navigation.getParam('selectedType', null),
   };
 
   componentDidMount = async () => {
     try {
-      const placeInfo = await this._loadInfo();
+      const placeInfo = await this._fetchInfoAboutPlace();
       await this._updateStateWith(placeInfo);
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
@@ -70,59 +66,34 @@ class ResultScreen extends React.Component {
     }
   };
 
-  _loadInfo = async () => {
+  _fetchInfoAboutPlace = async () => {
     let thePlaceInfo;
     const {selectedType} = this.state;
     if (selectedType === 'PHOTO') {
       const base64 = this.props.navigation.getParam('base64', null);
-      thePlaceInfo = await this._fetchPlaceInfoFromPhoto(base64);
-    } else if (selectedType === 'NEARBY') {
-      thePlaceInfo = this.props.navigation.getParam('nearbyPlace', null);
-    } else if (selectedType === 'SEARCH') {
-      const searchText = this.props.navigation.getParam('searchText', null);
-      thePlaceInfo = await this._fetchPlaceInfoFromSearch(searchText);
+      const userLocation = this.props.navigation.getParam('userLocation', null);
+      const detectedName = await googleOcr(base64);
+      const detectedPlace = await searchPlace(detectedName, userLocation);
+      thePlaceInfo = await getPlaceDetails(detectedPlace);
+    } else if (selectedType === 'NEARBY' || 'SEARCH') {
+      thePlaceInfo = this.props.navigation.getParam('placeInfo', null);
+      thePlaceInfo.reviews = await getReviews(thePlaceInfo.place_id);
     } else {
       throw 'Could not load any information. Please try again.';
     }
     return thePlaceInfo;
   };
 
-  _fetchPlaceInfoFromPhoto = async base64 => {
-    const detectedName = await googleOcr(base64);
-    const detectedPlace = await searchPlace(
-      detectedName,
-      this.state.userLocation,
-    );
-    return await getPlaceDetails(detectedPlace);
-  };
-
-  // If location service is disabled. What happens?
-  // Should user be able to search for places other than nearby? YES
-  //! Disabled the user location so a user can search for places that aren't nearby.
-  _fetchPlaceInfoFromSearch = async searchText => {
-    const detectedPlace = await searchPlace(
-      searchText,
-      // this.state.userLocation,
-    );
-    return await getPlaceDetails(detectedPlace);
-  };
-
   _updateStateWith = async placeInfo => {
     const {
-      place_id,
       name,
       types,
       rating,
       user_ratings_total,
       price_level,
       photos,
+      reviews,
     } = placeInfo;
-
-    let {reviews} = placeInfo;
-
-    if (this.state.selectedType === 'NEARBY') {
-      reviews = await getReviews(place_id);
-    }
 
     this.setState({
       name,

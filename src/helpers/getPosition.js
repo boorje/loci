@@ -7,7 +7,7 @@ import Geolocation from '@react-native-community/geolocation';
 export default () => {
   const geoOptions = {
     enableHighAccuracy: true,
-    timeout: 20000,
+    timeout: 5000,
     maximumAge: 1000,
   };
   return new Promise((resolve, reject) => {

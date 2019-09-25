@@ -44,18 +44,20 @@ const _flatListItemSeparator = () => <View style={styles.separator} />;
 const ListOfPlaces = props => {
   return (
     <View style={{flex: 1, backgroundColor: colors.paper}}>
-      <View style={styles.headView}>
-        <Text style={styles.headLine}>Places nearby</Text>
-        <Icon.Button
-          backgroundColor="transparent"
-          underlayColor="transparent"
-          marginRight={10}
-          size={20}
-          name={props.arrowIconDirection}
-          color={colors.charcoal}
-          onPress={() => props.toggleListOfPlaces()}
-        />
-      </View>
+      {props.arrowIconDirection && (
+        <View style={styles.headView}>
+          <Text style={styles.headLine}>Places nearby</Text>
+          <Icon.Button
+            backgroundColor="transparent"
+            underlayColor="transparent"
+            marginRight={10}
+            size={20}
+            name={props.arrowIconDirection}
+            color={colors.charcoal}
+            onPress={() => props.toggleListOfPlaces()}
+          />
+        </View>
+      )}
       <FlatList
         data={props.places}
         renderItem={place => (
@@ -108,6 +110,6 @@ const styles = StyleSheet.create({
 ListOfPlaces.proptypes = {
   places: PropTypes.array.isRequired,
   navigateToPlace: PropTypes.func.isRequired,
-  toggleListOfPlaces: PropTypes.func.isRequired,
-  arrowIconDirection: PropTypes.string.isRequired,
+  toggleListOfPlaces: PropTypes.func, //TODO: isRequired
+  arrowIconDirection: PropTypes.string, //TODO: isRequired
 };

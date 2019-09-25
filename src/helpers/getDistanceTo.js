@@ -1,5 +1,5 @@
-import {GOOGLE_API_KEY} from '../../constants/apiKeys';
-import objSerializer from '../objSerializer';
+import {GOOGLE_API_KEY} from '../constants/apiKeys';
+import objSerializer from './objSerializer';
 
 // --- GOOGLE DISTANCE MATRIX API ---
 

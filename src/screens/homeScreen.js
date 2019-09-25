@@ -9,8 +9,8 @@ import SearchBar from '../components/searchBar';
 // --- Helper Functions ---
 import ListOfPlaces from '../components/listOfPlaces';
 import findNearbyPlaces from '../helpers/googleAPI/findNearbyPlaces';
-import getPosition from '../helpers/googleAPI/getPosition';
-import getDistanceTo from '../helpers/googleAPI/getDistanceTo';
+import getPosition from '../helpers/getPosition';
+import getDistanceTo from '../helpers/getDistanceTo';
 
 // So that it works on Android
 const {UIManager} = NativeModules;
@@ -49,6 +49,8 @@ export default class HomeScreen extends React.Component {
         this.setState({nearbyPlaces});
       }
     } catch (error) {
+      // TODO: What happens when location isn't found?
+      console.log('Could not find location.');
       this.setState({nearbyPlaces: []});
     }
   };
@@ -65,14 +67,10 @@ export default class HomeScreen extends React.Component {
   };
 
   _getCoordinates = async () => {
-    try {
-      const coords = await getPosition();
-      const {latitude, longitude} = coords.coords;
-      this.setState({userLocation: {latitude, longitude}});
-      return true;
-    } catch (error) {
-      return false;
-    }
+    const coords = await getPosition();
+    const {latitude, longitude} = coords.coords;
+    this.setState({userLocation: {latitude, longitude}});
+    return true;
   };
 
   takePhoto = async photo => {
@@ -98,7 +96,7 @@ export default class HomeScreen extends React.Component {
       : this.setState({showNearbyPlacesList: true});
   };
 
-  //    -- NAVIGATE TO RESULTS PAGE --
+  //    -- NAVIGATATION TO RESULTS PAGE --
   _getInfoFrom = base64 => {
     this.props.navigation.navigate('Results', {
       base64: base64,
@@ -113,15 +111,15 @@ export default class HomeScreen extends React.Component {
 
   showInfoFor = placeIndex => {
     this.props.navigation.navigate('Results', {
-      nearbyPlace: this.state.nearbyPlaces[placeIndex],
+      placeInfo: this.state.nearbyPlaces[placeIndex],
       selectedType: 'NEARBY',
     });
   };
 
+  // Show modal with the top 5 results
   searchInfoFor = place => {
-    this.props.navigation.navigate('Results', {
+    this.props.navigation.navigate('SearchOptionsModal', {
       searchText: place,
-      selectedType: 'SEARCH',
     });
   };
   //    -- NAVIGATE TO RESULTS PAGE END --

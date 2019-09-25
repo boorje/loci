@@ -14,11 +14,14 @@ export default class SearchBar extends React.Component {
         <Icon size={20} name="search" color="#666" />
         <TextInput
           style={styles.textInput}
-          placeholder="See reviews for a restaurants, cafe or bar..."
+          placeholder="See reviews for restaurants, cafe or bars..."
           onChangeText={searchText => this.setState({searchText})}
           value={this.state.searchText}
           returnKeyType="search"
-          onSubmitEditing={() => this.props.searchFor(this.state.searchText)}
+          onSubmitEditing={() => {
+            this.props.searchFor(this.state.searchText);
+            this.setState({searchText: ''});
+          }}
           enablesReturnKeyAutomatically={true}
           placeholderTextColor="#666"
           autoCorrect={false}
