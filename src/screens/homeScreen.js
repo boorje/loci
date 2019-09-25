@@ -4,6 +4,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 
 // --- Components ---
 import Camera from '../components/camera';
+import SearchBar from '../components/searchBar';
 
 // --- Helper Functions ---
 import ListOfPlaces from '../components/listOfPlaces';
@@ -40,8 +41,8 @@ class HomeScreen extends React.Component {
 
   componentDidMount = async () => {
     try {
-      await this._getCoordinates();
-      if (this.state.foundLocation) {
+      const foundLocaiton = await this._getCoordinates();
+      if (foundLocation) {
         let nearbyPlaces = await findNearbyPlaces();
         nearbyPlaces = this._addDistanceTo(nearbyPlaces);
         this.setState({nearbyPlaces});
@@ -66,9 +67,10 @@ class HomeScreen extends React.Component {
     try {
       const coords = await getPosition();
       const {latitude, longitude} = coords.coords;
-      this.setState({foundLocation: true, userLocation: {latitude, longitude}});
+      this.setState({userLocation: {latitude, longitude}});
+      return true;
     } catch (error) {
-      this.setState({foundLocation: false});
+      return false;
     }
   };
 
@@ -97,19 +99,29 @@ class HomeScreen extends React.Component {
         latitude: this.state.latitude,
         longitude: this.state.longitude,
       },
+      selectedType: 'PHOTO',
     });
   };
 
-  navigateToPlace = placeIndex =>
+  navigateToPlace = placeIndex => {
     this.props.navigation.navigate('Results', {
-      selectedPlace: this.state.nearbyPlaces[placeIndex],
-      isNearbyPlace: true,
+      nearbyPlace: this.state.nearbyPlaces[placeIndex],
+      selectedType: 'NEARBY',
     });
+  };
+
+  searchFor = place => {
+    this.props.navigation.navigate('Results', {
+      searchText: place,
+      selectedType: 'SEARCH',
+    });
+  };
 
   render() {
     const {nearbyPlaces} = this.state;
     return (
       <SafeAreaView style={{flex: 1}}>
+        <SearchBar searchFor={searchText => this.searchFor(searchText)} />
         <View style={{flex: 5, zIndex: 10}}>
           <Camera takePhoto={photo => this.takePhoto(photo)} />
         </View>
