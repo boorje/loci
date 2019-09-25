@@ -51,9 +51,9 @@ const ListOfPlaces = props => {
           underlayColor="transparent"
           marginRight={10}
           size={20}
-          name={props.name}
+          name={props.arrowIconDirection}
           color={colors.charcoal}
-          onPress={() => props.showList()}
+          onPress={() => props.toggleListOfPlaces()}
         />
       </View>
       <FlatList
@@ -108,6 +108,6 @@ const styles = StyleSheet.create({
 ListOfPlaces.proptypes = {
   places: PropTypes.array.isRequired,
   navigateToPlace: PropTypes.func.isRequired,
-  showList: PropTypes.func.isRequired,
-  name: PropTypes.string.isRequired,
+  toggleListOfPlaces: PropTypes.func.isRequired,
+  arrowIconDirection: PropTypes.string.isRequired,
 };

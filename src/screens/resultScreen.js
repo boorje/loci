@@ -37,8 +37,6 @@ const ErrorScreen = errorMsg => {
 // TODO: Add a screen/component which is rendered when an error occurs, i.e. text/place wasn't found
 class ResultScreen extends React.Component {
   state = {
-    thePlace: {},
-    loading: true,
     apiError: '',
     showPhotos: true,
     height: 0,
@@ -53,11 +51,11 @@ class ResultScreen extends React.Component {
     reviews: [],
 
     // From homescreen
-    base64: this.props.navigation.getParam('base64', null),
-    nearbyPlaces: this.props.navigation.getParam('nearbyPlaces', null),
-    userLocation: this.props.navigation.getParam('userLocation', null),
-    selectedPlace: this.props.navigation.getParam('selectedPlace', null),
-    isNearbyPlace: this.props.navigation.getParam('isNearbyPlace', false),
+    // -- Photo
+    nearbyPlaces: this.props.navigation.getParam('nearbyPlaces', null), //? Is this needed here?
+    userLocation: this.props.navigation.getParam('userLocation', null), //? Is this needed here?
+    // -- All
+    selectedType: this.props.navigation.getParam('selectedType', null),
   };
 
   componentDidMount = async () => {
@@ -70,21 +68,43 @@ class ResultScreen extends React.Component {
       alert('Something went wrong. Please try again');
       this.setState({apiError: error});
     }
-    this.setState({loading: false});
   };
 
   _loadInfo = async () => {
     let thePlaceInfo;
-    // if photo is taken in homescreen
-    if (!this.state.isNearbyPlace) {
-      thePlaceInfo = await this._fetchPlaceInfoFrom(this.state.base64);
-      // if place is selected from nearby places
+    const {selectedType} = this.state;
+    if (selectedType === 'PHOTO') {
+      const base64 = this.props.navigation.getParam('base64', null);
+      thePlaceInfo = await this._fetchPlaceInfoFromPhoto(base64);
+    } else if (selectedType === 'NEARBY') {
+      thePlaceInfo = this.props.navigation.getParam('nearbyPlace', null);
+    } else if (selectedType === 'SEARCH') {
+      const searchText = this.props.navigation.getParam('searchText', null);
+      thePlaceInfo = await this._fetchPlaceInfoFromSearch(searchText);
     } else {
-      thePlaceInfo = this.state.selectedPlace;
-      // add the reviews
+      throw 'Could not load any information. Please try again.';
     }
-
     return thePlaceInfo;
+  };
+
+  _fetchPlaceInfoFromPhoto = async base64 => {
+    const detectedName = await googleOcr(base64);
+    const detectedPlace = await searchPlace(
+      detectedName,
+      this.state.userLocation,
+    );
+    return await getPlaceDetails(detectedPlace);
+  };
+
+  // If location service is disabled. What happens?
+  // Should user be able to search for places other than nearby? YES
+  //! Disabled the user location so a user can search for places that aren't nearby.
+  _fetchPlaceInfoFromSearch = async searchText => {
+    const detectedPlace = await searchPlace(
+      searchText,
+      // this.state.userLocation,
+    );
+    return await getPlaceDetails(detectedPlace);
   };
 
   _updateStateWith = async placeInfo => {
@@ -100,7 +120,7 @@ class ResultScreen extends React.Component {
 
     let {reviews} = placeInfo;
 
-    if (this.state.isNearbyPlace) {
+    if (this.state.selectedType === 'NEARBY') {
       reviews = await getReviews(place_id);
     }
 
@@ -113,15 +133,6 @@ class ResultScreen extends React.Component {
       photos: photos ? this._extractUrl(photos) : null,
       reviews: reviews ? this._extractReviewInfo(reviews) : null,
     });
-  };
-
-  _fetchPlaceInfoFrom = async base64 => {
-    const detectedName = await googleOcr(base64);
-    const detectedPlace = await searchPlace(
-      detectedName,
-      this.state.userLocation,
-    );
-    return await getPlaceDetails(detectedPlace);
   };
 
   _renderDollarsFrom = price => {

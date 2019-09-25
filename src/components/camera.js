@@ -6,51 +6,46 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import colors from '../constants/colors';
 
 export default class AppCamera extends React.Component {
+  //? Catch error here?
   async _takePhoto() {
-    const options = {base64: true};
+    const cameraOptions = {base64: true};
     try {
-      if (this.camera) {
-        const response = await this.camera.takePictureAsync(options);
-        this.props.takePhoto(response);
+      if (!this.camera) {
+        throw 'Could not take a photo. Please try again';
       }
+      const response = await this.camera.takePictureAsync(cameraOptions);
+      this.props.takePhoto(response);
     } catch (error) {
-      //TODO: display a message displaying the error
-      alert('ERROR:\n ', error);
+      throw 'Could not take a photo. Please try again';
     }
   }
 
   render() {
     return (
-      <View style={{flex: 1, backgroundColor: colors.paper}}>
+      <View style={styles.cameraView}>
         <RNCamera
-          style={{
-            flex: 1,
-            alignItems: 'center',
-          }}
+          style={styles.camera}
           ref={ref => {
             this.camera = ref;
           }}
           captureAudio={false}
         />
-
         <View style={styles.cameraButton}>
           <View style={styles.line} />
-          <View style={{alignSelf: 'center'}}>
-            <Icon.Button
-              backgroundColor={colors.palegold}
-              borderRadius={50}
-              underlayColor={colors.palegold}
-              padding={3}
-              marginLeft={10}
-              marginTop={10}
-              marginBottom={10}
-              size={30}
-              name="camera"
-              color={colors.paper}
-              type="Feather"
-              onPress={() => this._takePhoto()}
-            />
-          </View>
+          <Icon.Button
+            backgroundColor={colors.palegold}
+            borderRadius={50}
+            underlayColor={colors.palegold}
+            padding={3}
+            marginLeft={10}
+            marginTop={10}
+            marginBottom={10}
+            size={30}
+            name="camera"
+            color={colors.paper}
+            type="Feather"
+            onPress={() => this._takePhoto()}
+          />
           <View style={styles.line} />
         </View>
       </View>
@@ -59,6 +54,14 @@ export default class AppCamera extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  cameraView: {
+    flex: 1,
+    backgroundColor: colors.paper,
+  },
+  camera: {
+    flex: 1,
+    alignItems: 'center',
+  },
   cameraButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -72,8 +75,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderTopColor: colors.palegold,
     borderTopWidth: 2,
-    //marginLeft: '3%',
-    //  marginRight: '3%',
   },
 });
 

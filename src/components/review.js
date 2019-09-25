@@ -10,6 +10,10 @@ const _createDateFrom = timestamp =>
     .slice(1, 4)
     .join(' ');
 
+const _sortBy = time => {
+  return (a, b) => b[time] - a[time];
+};
+
 const RenderReview = review => {
   return (
     <View style={styles.review}>
@@ -30,10 +34,6 @@ const RenderReview = review => {
 };
 
 const _flatListItemSeparator = () => <View style={styles.separator} />;
-
-const _sortBy = time => {
-  return (a, b) => b[time] - a[time];
-};
 
 const Review = props => {
   return (

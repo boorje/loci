@@ -15,7 +15,7 @@ const _searchUrl = (searchText, userLocation) => {
         inputtype: 'textquery',
         fields: 'place_id',
         // eslint-disable-next-line prettier/prettier
-        locationbias: `circle:1000@${userLocation.latitude},${userLocation.longitude}`,
+        locationbias: `circle:50000@${userLocation.latitude},${userLocation.longitude}`,
         key: GOOGLE_API_KEY,
       }
     : {
@@ -47,6 +47,7 @@ const searchPlace = async (searchText, userLocation = null) => {
         },
       });
       const jsonResponse = await response.json();
+      console.log(jsonResponse.candidates[0]);
       resolve(jsonResponse.candidates[0].place_id);
     } catch (error) {
       reject(`Place Search ERROR: ${error}`);
