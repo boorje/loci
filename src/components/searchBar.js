@@ -3,7 +3,7 @@ import {StyleSheet, TextInput, View} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Proptypes from 'prop-types';
 
-class SearchBar extends React.Component {
+export default class SearchBar extends React.Component {
   state = {
     searchText: '',
   };
@@ -27,8 +27,6 @@ class SearchBar extends React.Component {
     );
   }
 }
-
-export default SearchBar;
 
 SearchBar.proptypes = {
   searchFor: Proptypes.func.isRequired,

@@ -17,38 +17,39 @@ const {UIManager} = NativeModules;
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
 
-class HomeScreen extends React.Component {
+const springAnimation = {
+  duration: 300,
+  create: {
+    type: LayoutAnimation.Types.spring,
+    property: LayoutAnimation.Properties.scaleXY,
+    springDamping: 1,
+  },
+  update: {
+    type: LayoutAnimation.Types.spring,
+    springDamping: 1,
+  },
+};
+
+export default class HomeScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
   state = {
-    foundLocation: false,
     userLocation: {latitude: '', longitude: ''},
-    takenPhoto: {},
     nearbyPlaces: [],
-    showList: false,
-  };
-
-  showList = () => {
-    if (this.state.showList === true) {
-      LayoutAnimation.configureNext(spring);
-      this.setState({showList: false});
-    } else {
-      LayoutAnimation.configureNext(spring);
-      this.setState({showList: true});
-    }
+    showNearbyPlacesList: false,
   };
 
   componentDidMount = async () => {
     try {
-      const foundLocaiton = await this._getCoordinates();
+      const foundLocation = await this._getCoordinates();
       if (foundLocation) {
         let nearbyPlaces = await findNearbyPlaces();
         nearbyPlaces = this._addDistanceTo(nearbyPlaces);
         this.setState({nearbyPlaces});
       }
     } catch (error) {
-      this.setState({foundLocation: false});
+      this.setState({nearbyPlaces: []});
     }
   };
 
@@ -76,22 +77,29 @@ class HomeScreen extends React.Component {
 
   takePhoto = async photo => {
     try {
-      this.setState({takenPhoto: photo});
       const editedPhoto = await ImagePicker.openCropper({
-        path: this.state.takenPhoto.uri,
+        path: photo.uri,
         width: 300,
         height: 100,
         includeBase64: true,
-        cropperToolbarTitle: 'Edit photo',
+        cropperToolbarTitle: 'Make sure the text is in the highlighted area',
       });
-      this._usePhoto(editedPhoto.data);
+      this._getInfoFrom(editedPhoto.data);
     } catch (error) {
       // The error is thrown when a user cancels the edit. Should not throw error
-      this.setState({takenPhoto: {}});
+      alert('Something went wrong when taking or editing the photo');
     }
   };
 
-  _usePhoto = base64 => {
+  toggleListOfPlaces = () => {
+    LayoutAnimation.configureNext(springAnimation);
+    this.state.showNearbyPlacesList
+      ? this.setState({showNearbyPlacesList: false})
+      : this.setState({showNearbyPlacesList: true});
+  };
+
+  //    -- NAVIGATE TO RESULTS PAGE --
+  _getInfoFrom = base64 => {
     this.props.navigation.navigate('Results', {
       base64: base64,
       nearbyPlaces: this.state.nearbyPlaces,
@@ -103,35 +111,36 @@ class HomeScreen extends React.Component {
     });
   };
 
-  navigateToPlace = placeIndex => {
+  showInfoFor = placeIndex => {
     this.props.navigation.navigate('Results', {
       nearbyPlace: this.state.nearbyPlaces[placeIndex],
       selectedType: 'NEARBY',
     });
   };
 
-  searchFor = place => {
+  searchInfoFor = place => {
     this.props.navigation.navigate('Results', {
       searchText: place,
       selectedType: 'SEARCH',
     });
   };
+  //    -- NAVIGATE TO RESULTS PAGE END --
 
   render() {
     const {nearbyPlaces} = this.state;
     return (
       <SafeAreaView style={{flex: 1}}>
-        <SearchBar searchFor={searchText => this.searchFor(searchText)} />
+        <SearchBar searchFor={searchText => this.searchInfoFor(searchText)} />
         <View style={{flex: 5, zIndex: 10}}>
           <Camera takePhoto={photo => this.takePhoto(photo)} />
         </View>
         {nearbyPlaces.length !== 0 && (
-          <View style={{flex: this.state.showList ? 5 : 1}}>
+          <View style={{flex: this.state.showNearbyPlacesList ? 5 : 1}}>
             <ListOfPlaces
               places={this.state.nearbyPlaces}
-              navigateToPlace={index => this.navigateToPlace(index)}
-              showList={() => this.showList()}
-              name={this.state.showList ? 'arrow-down' : 'arrow-up'}
+              navigateToPlace={index => this.showInfoFor(index)}
+              toggleListOfPlaces={() => this.toggleListOfPlaces()}
+              name={this.state.showNearbyPlacesList ? 'arrow-down' : 'arrow-up'}
             />
           </View>
         )}
@@ -139,18 +148,3 @@ class HomeScreen extends React.Component {
     );
   }
 }
-
-let spring = {
-  duration: 300,
-  create: {
-    type: LayoutAnimation.Types.spring,
-    property: LayoutAnimation.Properties.scaleXY,
-    springDamping: 1,
-  },
-  update: {
-    type: LayoutAnimation.Types.spring,
-    springDamping: 1,
-  },
-};
-
-export default HomeScreen;
