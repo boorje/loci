@@ -47,6 +47,7 @@ const searchPlace = async (searchText, userLocation = null) => {
         },
       });
       const jsonResponse = await response.json();
+      console.log(jsonResponse.candidates[0]);
       resolve(jsonResponse.candidates[0].place_id);
     } catch (error) {
       reject(`Place Search ERROR: ${error}`);

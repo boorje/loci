@@ -8,12 +8,13 @@ import colors from '../constants/colors';
 export default class AppCamera extends React.Component {
   //? Catch error here?
   async _takePhoto() {
-    const options = {base64: true};
+    const cameraOptions = {base64: true};
     try {
-      if (this.camera) {
-        const response = await this.camera.takePictureAsync(options);
-        this.props.takePhoto(response);
+      if (!this.camera) {
+        throw 'Could not take a photo. Please try again';
       }
+      const response = await this.camera.takePictureAsync(cameraOptions);
+      this.props.takePhoto(response);
     } catch (error) {
       throw 'Could not take a photo. Please try again';
     }

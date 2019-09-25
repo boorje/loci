@@ -1,11 +1,9 @@
 import React from 'react';
-import {FlatList, Text, TouchableOpacity, StyleSheet, View} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import PropTypes from 'prop-types';
-
-// Components
 import Stars from '../components/stars';
 import colors from '../constants/colors';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const _classifyDistanceAway = distance => {
   if (distance < 500) {
@@ -17,11 +15,7 @@ const _classifyDistanceAway = distance => {
   }
 };
 
-const FlatListItemSeparator = () => {
-  return <View style={styles.separator} />;
-};
-
-const PlaceItem = props => {
+const RenderPlace = props => {
   const {place} = props;
   const {name, distanceTo, rating, user_ratings_total} = place.item;
   const distanceAway = _classifyDistanceAway(distanceTo);
@@ -45,6 +39,8 @@ const PlaceItem = props => {
   );
 };
 
+const _flatListItemSeparator = () => <View style={styles.separator} />;
+
 const ListOfPlaces = props => {
   return (
     <View style={{flex: 1, backgroundColor: colors.paper}}>
@@ -55,7 +51,7 @@ const ListOfPlaces = props => {
           underlayColor="transparent"
           marginRight={10}
           size={20}
-          name={props.name}
+          name={props.arrowIconDirection}
           color={colors.charcoal}
           onPress={() => props.toggleListOfPlaces()}
         />
@@ -63,26 +59,19 @@ const ListOfPlaces = props => {
       <FlatList
         data={props.places}
         renderItem={place => (
-          <PlaceItem
+          <RenderPlace
             place={place}
             navigateToPlace={index => props.navigateToPlace(index)}
           />
         )}
         keyExtractor={place => place.id}
-        ItemSeparatorComponent={<FlatListItemSeparator />}
+        ItemSeparatorComponent={_flatListItemSeparator}
       />
     </View>
   );
 };
 
 export default ListOfPlaces;
-
-ListOfPlaces.proptypes = {
-  places: PropTypes.array.isRequired,
-  navigateToPlace: PropTypes.func.isRequired,
-  toggleListOfPlaces: PropTypes.func.isRequired,
-  name: PropTypes.string.isRequired,
-};
 
 const styles = StyleSheet.create({
   headView: {
@@ -115,3 +104,10 @@ const styles = StyleSheet.create({
   },
   stars: {justifyContent: 'flex-start'},
 });
+
+ListOfPlaces.proptypes = {
+  places: PropTypes.array.isRequired,
+  navigateToPlace: PropTypes.func.isRequired,
+  toggleListOfPlaces: PropTypes.func.isRequired,
+  arrowIconDirection: PropTypes.string.isRequired,
+};

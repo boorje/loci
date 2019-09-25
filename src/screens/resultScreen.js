@@ -120,7 +120,7 @@ class ResultScreen extends React.Component {
 
     let {reviews} = placeInfo;
 
-    if (this.state.isNearbyPlace) {
+    if (this.state.selectedType === 'NEARBY') {
       reviews = await getReviews(place_id);
     }
 
