@@ -12,20 +12,21 @@ export default class SearchBar extends React.Component {
     return (
       <View style={styles.searchBar}>
         <Icon size={20} name="search" color="#666" />
-        <TextInput
-          style={styles.textInput}
-          placeholder="See reviews for restaurants, cafe or bars..."
-          onChangeText={searchText => this.setState({searchText})}
-          value={this.state.searchText}
-          returnKeyType="search"
-          onSubmitEditing={() => {
-            this.props.searchFor(this.state.searchText);
-            this.setState({searchText: ''});
-          }}
-          enablesReturnKeyAutomatically={true}
-          placeholderTextColor="#666"
-          autoCorrect={false}
-        />
+        <View style={styles.textInput}>
+          <TextInput
+            placeholder="See reviews for restaurants, cafe or bars..."
+            onChangeText={searchText => this.setState({searchText})}
+            value={this.state.searchText}
+            returnKeyType="search"
+            onSubmitEditing={() => {
+              this.props.searchFor(this.state.searchText);
+              this.setState({searchText: ''});
+            }}
+            enablesReturnKeyAutomatically={true}
+            placeholderTextColor="#666"
+            autoCorrect={false}
+          />
+        </View>
       </View>
     );
   }
@@ -43,7 +44,8 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   textInput: {
-    height: 40,
+    height: 50,
     paddingLeft: 20,
+    justifyContent: 'center',
   },
 });

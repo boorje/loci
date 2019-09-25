@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Text, SafeAreaView, View} from 'react-native';
+import {Alert, Button, Text, SafeAreaView} from 'react-native';
 
 import ListOfPlaces from '../components/listOfPlaces';
 
@@ -14,9 +14,19 @@ export default class SearchOptionsScreen extends React.Component {
     try {
       const searchText = this.props.navigation.getParam('searchText', null);
       const foundPlaces = await searchTextPlaces(searchText);
+      if (foundPlaces.length < 1) {
+        throw `Found no matches`;
+      }
       this.setState({foundPlaces});
     } catch (error) {
-      alert('Could not find any places. Please try again');
+      Alert.alert(error, 'Please try again.', [
+        {text: 'Search again', onPress: () => this.props.navigation.goBack()},
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+      ]);
     }
   };
 
@@ -30,8 +40,8 @@ export default class SearchOptionsScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>
-        <Text style={{fontSize: 30, textAlign: 'center'}}>
-          Select restaurant
+        <Text style={{fontSize: 20, textAlign: 'center', marginBottom: 20}}>
+          Select Restaurant
         </Text>
         <ListOfPlaces
           places={this.state.foundPlaces}

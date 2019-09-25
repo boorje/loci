@@ -43,6 +43,16 @@ class ResultScreen extends React.Component {
     height: 0,
 
     // The place information
+    placeInfo: {
+      name: '',
+      type: '',
+      rating: null,
+      user_ratings_total: '',
+      price_level: '',
+      photos: [],
+      reviews: [],
+    },
+
     name: '',
     type: '',
     rating: null,
@@ -96,13 +106,15 @@ class ResultScreen extends React.Component {
     } = placeInfo;
 
     this.setState({
-      name,
-      type: types ? this._modifyType(types[0]) : null,
-      rating: rating ? rating : null,
-      user_ratings_total: user_ratings_total ? user_ratings_total : null,
-      price_level: price_level ? this._renderDollarsFrom(price_level) : null,
-      photos: photos ? this._extractUrl(photos) : null,
-      reviews: reviews ? this._extractReviewInfo(reviews) : null,
+      placeInfo: {
+        name,
+        type: types ? this._modifyType(types[0]) : null,
+        rating: rating ? rating : null,
+        user_ratings_total: user_ratings_total ? user_ratings_total : null,
+        price_level: price_level ? this._renderDollarsFrom(price_level) : null,
+        photos: photos ? this._extractUrl(photos) : null,
+        reviews: reviews ? this._extractReviewInfo(reviews) : null,
+      },
     });
   };
 
@@ -121,6 +133,7 @@ class ResultScreen extends React.Component {
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
+  // ? Redundancy
   _extractReviewInfo = reviews => {
     return reviews.map((review, index) => ({
       id: index,
@@ -155,51 +168,54 @@ class ResultScreen extends React.Component {
   };
 
   render() {
+    const {height, showPhotos, placeInfo} = this.state;
+    const {
+      name,
+      rating,
+      user_ratings_total,
+      price_level,
+      photos,
+      reviews,
+      type,
+    } = placeInfo;
+
     return (
       <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         <View>
           <View style={{alignItems: 'center'}}>
-            <Text style={styles.name}>{this.state.name}</Text>
-            <Text style={styles.type}>{this.state.type}</Text>
-            <Text style={styles.type}>{this.state.price_level}</Text>
+            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.type}>{type}</Text>
+            <Text style={styles.type}>{price_level}</Text>
           </View>
-          <Stars
-            style={styles.stars}
-            rating={this.state.rating}
-            starSize={50}
-          />
+          <Stars style={styles.stars} rating={rating} starSize={50} />
           <View style={{alignItems: 'center'}}>
             <Text style={styles.review}>
-              {this.state.rating}
+              {rating}
               <Text style={styles.review2}>
                 {' '}
-                baserat på {this.state.user_ratings_total} recensioner
+                baserat på {user_ratings_total} recensioner
               </Text>
             </Text>
           </View>
           <View style={styles.menu}>
             <TouchableOpacity
-              style={
-                this.state.showPhotos ? styles.container : styles.container2
-              }
+              style={showPhotos ? styles.container : styles.container2}
               onPress={this._toggleTabMenu}>
               <Text style={{fontFamily: 'Avenir Next'}}> Bilder </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={
-                !this.state.showPhotos ? styles.container : styles.container2
-              }
+              style={!showPhotos ? styles.container : styles.container2}
               onPress={this._toggleTabMenu}>
               <Text style={{fontFamily: 'Avenir Next'}}> Recensioner </Text>
             </TouchableOpacity>
           </View>
         </View>
         <View style={styles.slideshow} onLayout={this._onLayout}>
-          {this.state.showPhotos ? (
-            <Slideshow images={this.state.photos} height={this.state.height} />
+          {showPhotos ? (
+            <Slideshow images={photos} height={height} />
           ) : (
             <ScrollView keyboardShouldPersistTaps="always">
-              <Review reviews={this.state.reviews} />
+              <Review reviews={reviews} />
             </ScrollView>
           )}
         </View>
