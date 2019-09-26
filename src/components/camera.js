@@ -45,6 +45,7 @@ export default class AppCamera extends React.Component {
             color={colors.paper}
             type="Feather"
             onPress={() => this._takePhoto()}
+            disabled //! DISABLED
           />
           <View style={styles.line} />
         </View>

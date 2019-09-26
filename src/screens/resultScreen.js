@@ -12,6 +12,8 @@ import Section from '../components/section';
 // -- Constants --
 import colors from '../constants/colors';
 import fonts from '../constants/fonts';
+// ! MOCKDATA
+import mockData from '../constants/mockData';
 
 // -- Helper Functions --
 import googleOcr from '../helpers/googleAPI/googleOcr';
@@ -47,7 +49,9 @@ class ResultScreen extends React.Component {
 
   componentDidMount = async () => {
     try {
-      const placeInfo = await this._fetchInfoAboutPlace();
+      // const placeInfo = await this._fetchInfoAboutPlace();
+      // ! MOCKDATA
+      const placeInfo = mockData;
       await this._updateStateWith(placeInfo);
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
@@ -118,7 +122,6 @@ class ResultScreen extends React.Component {
 
   render() {
     const {placeInfo} = this.state;
-    console.log(placeInfo);
     return (
       <View style={{flex: 1}}>
         {/* PLACE INFORMATION  */}

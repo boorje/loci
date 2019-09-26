@@ -166,6 +166,7 @@ export default class HomeScreen extends React.Component {
             <Button
               title="Show nearby places"
               onPress={() => this._getNearbyPlaces()}
+              disabled //! Currently disabled
             />
           </View>
         ) : (

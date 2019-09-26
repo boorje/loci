@@ -22,7 +22,7 @@ export default class SearchBar extends React.Component {
             autoCorrect={false}
             returnKeyType="search"
             onSubmitEditing={() => {
-              this.props.searchFor(this.state.searchText);
+              // this.props.searchFor(this.state.searchText); // ! Disabled
               this.setState({searchText: ''});
             }}
           />

@@ -44,7 +44,6 @@ class Gallery extends React.Component {
   };
 
   render() {
-    console.log('PHOTOS: ', this.props.photos);
     return (
       <Carousel
         ref={c => {

@@ -12,7 +12,7 @@ const _renderDollarsFrom = price => {
   for (let index = 0; index < price; index++) {
     price_level += '$';
   }
-  return `- ${price_level}`;
+  return price_level;
 };
 
 const _modifyType = type => {
@@ -34,7 +34,8 @@ const PlaceInformation = props => {
       style={{width: props.width * 0.7, marginBottom: '10%', marginLeft: '7%'}}>
       <Text style={styles.name}>{name}</Text>
       <Text style={styles.type}>
-        {_modifyType(type)} {_renderDollarsFrom(price_level)}
+        {_modifyType(type)} {type && price_level > 0 ? '-' : ''}{' '}
+        {_renderDollarsFrom(price_level)}
       </Text>
       {/* <Text style={styles.review2}>based on {user_ratings_total} reviews </Text> */}
     </View>
