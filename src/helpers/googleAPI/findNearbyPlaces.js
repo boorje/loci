@@ -1,6 +1,6 @@
 import {GOOGLE_API_KEY} from '../../constants/apiKeys';
 import objSerializer from '../objSerializer';
-import getPosition from './getPosition';
+import getPosition from '../getPosition';
 
 const _getCoordinates = async () => {
   const coords = await getPosition();
