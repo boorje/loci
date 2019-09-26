@@ -43,7 +43,7 @@ const _flatListItemSeparator = () => <View style={styles.separator} />;
 
 const ListOfPlaces = props => {
   return (
-    <View style={{flex: 1, backgroundColor: colors.paper}}>
+    <View style={{flex: 1}}>
       {props.arrowIconDirection && (
         <View style={styles.headView}>
           <Text style={styles.headLine}>Places nearby</Text>

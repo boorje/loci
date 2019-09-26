@@ -1,10 +1,12 @@
 import React from 'react';
 import {
+  Alert,
   Button,
+  LayoutAnimation,
+  Linking,
+  NativeModules,
   SafeAreaView,
   View,
-  LayoutAnimation,
-  NativeModules,
 } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 
@@ -105,6 +107,20 @@ export default class HomeScreen extends React.Component {
   };
 
   _getNearbyPlaces = async () => {
+    if (this.state.userLocation) {
+      Alert.alert(
+        'Oops',
+        'Enable location service to be able to see places near your location.',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'Settings', onPress: () => Linking.openSettings()},
+        ],
+      );
+    }
     const {latitude, longitude} = this.state.userLocation;
     if (latitude && longitude) {
       let nearbyPlaces = await findNearbyPlaces();
