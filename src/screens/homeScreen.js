@@ -1,5 +1,11 @@
 import React from 'react';
-import {SafeAreaView, View, LayoutAnimation, NativeModules} from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  LayoutAnimation,
+  NativeModules,
+} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 
 // --- Components ---
@@ -113,13 +119,18 @@ class HomeScreen extends React.Component {
         <View style={{flex: 5, zIndex: 10}}>
           <Camera takePhoto={photo => this.takePhoto(photo)} />
         </View>
+
         {nearbyPlaces.length !== 0 && (
           <View style={{flex: this.state.showList ? 5 : 1}}>
             <ListOfPlaces
               places={this.state.nearbyPlaces}
               navigateToPlace={index => this.navigateToPlace(index)}
               showList={() => this.showList()}
-              name={this.state.showList ? 'arrow-down' : 'arrow-up'}
+              name={
+                this.state.showList
+                  ? 'keyboard-arrow-down'
+                  : 'keyboard-arrow-up'
+              }
             />
           </View>
         )}
@@ -140,5 +151,34 @@ let spring = {
     springDamping: 1,
   },
 };
-
+const styles = {
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  panel: {
+    flex: 1,
+    backgroundColor: 'white',
+    position: 'relative',
+  },
+  panelHeader: {
+    height: 120,
+    backgroundColor: '#b197fc',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  favoriteIcon: {
+    position: 'absolute',
+    top: -24,
+    right: 24,
+    backgroundColor: '#2b8a3e',
+    width: 48,
+    height: 48,
+    padding: 8,
+    borderRadius: 24,
+    zIndex: 1,
+  },
+};
 export default HomeScreen;

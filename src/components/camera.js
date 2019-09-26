@@ -2,7 +2,7 @@ import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import PropTypes from 'prop-types';
 import {RNCamera} from 'react-native-camera';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import colors from '../constants/colors';
 
 export default class AppCamera extends React.Component {
@@ -45,7 +45,7 @@ export default class AppCamera extends React.Component {
               marginTop={10}
               marginBottom={10}
               size={30}
-              name="camera"
+              name="photo-camera"
               color={colors.paper}
               type="Feather"
               onPress={() => this._takePhoto()}

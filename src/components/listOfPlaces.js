@@ -3,7 +3,8 @@ import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import PropTypes from 'prop-types';
 import Stars from '../components/stars';
 import colors from '../constants/colors';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import fonts from '../constants/fonts';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const _classifyDistanceAway = distance => {
   if (distance < 500) {
@@ -31,7 +32,7 @@ const RenderPlace = props => {
       onPress={() => props.navigateToPlace(place.index)}>
       <View>
         <View style={{flexDirection: 'row'}}>
-          <Text style={{fontFamily: 'Avenir Next'}}>{name}</Text>
+          <Text style={{fontFamily: fonts.avenirNext}}>{name}</Text>
         </View>
         <Stars style={styles.stars} rating={rating} starSize={17} />
       </View>
@@ -50,12 +51,13 @@ const ListOfPlaces = props => {
           backgroundColor="transparent"
           underlayColor="transparent"
           marginRight={10}
-          size={20}
+          size={40}
           name={props.name}
           color={colors.charcoal}
           onPress={() => props.showList()}
         />
       </View>
+
       <FlatList
         data={props.places}
         renderItem={place => (
@@ -91,7 +93,7 @@ const styles = StyleSheet.create({
     color: colors.charcoal,
     fontSize: 20,
     fontWeight: 'bold',
-    fontFamily: 'Avenir Next',
+    fontFamily: fonts.avenirNext,
   },
   separator: {
     height: 1,
@@ -100,7 +102,7 @@ const styles = StyleSheet.create({
     marginRight: '0%',
     marginBottom: 3,
     marginTop: 3,
-    backgroundColor: '#607D8B',
+    backgroundColor: colors.silk,
   },
   stars: {justifyContent: 'flex-start'},
 });

@@ -2,6 +2,8 @@ import React from 'react';
 import {View, FlatList, StyleSheet, Text} from 'react-native';
 import Stars from '../components/stars';
 import PropTypes from 'prop-types';
+import fonts from '../constants/fonts';
+import colors from '../constants/colors';
 
 const _createDateFrom = timestamp =>
   new Date(timestamp * 1000)
@@ -13,14 +15,25 @@ const _createDateFrom = timestamp =>
 const RenderReview = review => {
   return (
     <View style={styles.review}>
-      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+      <View
+        style={{
+          fontFamily: fonts.avenirNext,
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}>
         <Stars style={styles.stars} rating={review.item.rating} starSize={20} />
-        <Text style={{fontSize: 11, marginLeft: 3}}>
+        <Text
+          style={{fontFamily: fonts.avenirNext, fontSize: 11, marginLeft: 3}}>
           {_createDateFrom(review.item.time)}
         </Text>
       </View>
       <View>
-        <Text style={{fontWeight: 'bold', marginBottom: 3}}>
+        <Text
+          style={{
+            fontFamily: fonts.avenirNext,
+            //fontWeight: 'bold',
+            marginBottom: 3,
+          }}>
           {review.item.author_name}{' '}
         </Text>
         <Text style={{fontSize: 11}}>{review.item.text} </Text>
@@ -55,16 +68,12 @@ Review.proptypes = {
 
 const styles = StyleSheet.create({
   separator: {
-    height: 1,
+    height: 0.5,
     width: '97%',
-    marginLeft: '3%',
-    marginRight: '0%',
-    backgroundColor: '#607D8B',
+    backgroundColor: colors.silk,
   },
   review: {
     flex: 1,
-    marginLeft: '3%',
-    marginRight: '3%',
     marginTop: '3%',
     marginBottom: '3%',
   },

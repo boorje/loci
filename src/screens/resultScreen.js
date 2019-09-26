@@ -5,16 +5,19 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
+  Dimensions,
   View,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 
 // -- Components --
 import colors from '../constants/colors';
+import fonts from '../constants/fonts';
 import Stars from '../components/stars';
-import Slideshow from '../components/slideshow';
 import Review from '../components/review';
 import {GOOGLE_API_KEY} from '../constants/apiKeys';
+import Gallery from '../components/gallery';
+import TopBar from '../components/topBar';
 
 // -- Helper Functions --
 import googleOcr from '../helpers/googleAPI/googleOcr';
@@ -34,8 +37,13 @@ const ErrorScreen = errorMsg => {
   );
 };
 
+const {height, width} = Dimensions.get('window');
+
 // TODO: Add a screen/component which is rendered when an error occurs, i.e. text/place wasn't found
 class ResultScreen extends React.Component {
+  static navigationOptions = {
+    header: null,
+  };
   state = {
     thePlace: {},
     loading: true,
@@ -60,9 +68,14 @@ class ResultScreen extends React.Component {
     isNearbyPlace: this.props.navigation.getParam('isNearbyPlace', false),
   };
 
+  closeScreen = () => {
+    this.props.navigation.goBack();
+  };
+
   componentDidMount = async () => {
     try {
       const placeInfo = await this._loadInfo();
+      //console.log(placeInfo);
       await this._updateStateWith(placeInfo);
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
@@ -174,54 +187,50 @@ class ResultScreen extends React.Component {
 
   render() {
     return (
-      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-        <View>
-          <View style={{alignItems: 'center'}}>
-            <Text style={styles.name}>{this.state.name}</Text>
-            <Text style={styles.type}>{this.state.type}</Text>
-            <Text style={styles.type}>{this.state.price_level}</Text>
+      <View style={{flex: 1}}>
+        <View style={styles.topContainer}>
+          <View style={{marginTop: '10%', marginRight: '3%', marginLeft: '4%'}}>
+            <TopBar closeScreen={() => this.closeScreen()} />
           </View>
+          <View
+            style={{width: width * 0.7, marginBottom: '10%', marginLeft: '7%'}}>
+            <Text style={styles.name}>{this.state.name}</Text>
+            <Text style={styles.type}>
+              {this.state.type} - {this.state.price_level}
+            </Text>
+          </View>
+
           <Stars
             style={styles.stars}
             rating={this.state.rating}
-            starSize={50}
+            starSize={65}
           />
-          <View style={{alignItems: 'center'}}>
-            <Text style={styles.review}>
-              {this.state.rating}
-              <Text style={styles.review2}>
-                {' '}
-                baserat på {this.state.user_ratings_total} recensioner
-              </Text>
-            </Text>
-          </View>
-          <View style={styles.menu}>
-            <TouchableOpacity
-              style={
-                this.state.showPhotos ? styles.container : styles.container2
-              }
-              onPress={this._toggleTabMenu}>
-              <Text style={{fontFamily: 'Avenir Next'}}> Bilder </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={
-                !this.state.showPhotos ? styles.container : styles.container2
-              }
-              onPress={this._toggleTabMenu}>
-              <Text style={{fontFamily: 'Avenir Next'}}> Recensioner </Text>
-            </TouchableOpacity>
-          </View>
         </View>
-        <View style={styles.slideshow} onLayout={this._onLayout}>
-          {this.state.showPhotos ? (
-            <Slideshow images={this.state.photos} height={this.state.height} />
-          ) : (
-            <ScrollView keyboardShouldPersistTaps="always">
+
+        <View style={styles.bottomContainer}>
+          <View style={styles.images}>
+            <View style={styles.headlineView}>
+              <Text style={styles.headlineText}>Images</Text>
+              <View style={styles.line} />
+            </View>
+            <View style={styles.gallery}>
+              <Gallery width={width * 0.88} height={height * 0.2} />
+            </View>
+          </View>
+
+          <View style={styles.reviews}>
+            <View style={styles.headlineView}>
+              <Text style={styles.headlineText}>Reviews</Text>
+              <View style={styles.line} />
+            </View>
+            <ScrollView
+              style={{width: width * 0.88, marginBottom: '-5%'}}
+              keyboardShouldPersistTaps="always">
               <Review reviews={this.state.reviews} />
             </ScrollView>
-          )}
+          </View>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 }
@@ -229,56 +238,72 @@ class ResultScreen extends React.Component {
 export default ResultScreen;
 
 const styles = StyleSheet.create({
+  topContainer: {
+    backgroundColor: colors.surf,
+    flex: 3,
+    justifyContent: 'space-evenly',
+  },
+  bottomContainer: {
+    flex: 6,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
   name: {
-    marginTop: 50,
-    fontFamily: 'Avenir Next',
-    color: colors.charcoal,
+    fontFamily: fonts.avenirNext,
+    color: 'white',
     fontWeight: 'bold',
     fontSize: 30,
   },
   type: {
-    marginTop: 10,
-    fontFamily: 'Avenir Next',
-    color: colors.charcoal,
-    fontSize: 18,
-  },
-  review: {
-    marginTop: 5,
-    fontFamily: 'Avenir Next',
-    color: colors.charcoal,
+    fontFamily: fonts.avenirNext,
+    color: 'white',
     fontSize: 20,
   },
-  review2: {
-    marginTop: 5,
-    fontFamily: 'Avenir Next',
+  images: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginTop: '10%',
+  },
+  reviews: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  gallery: {
+    marginTop: '6%',
+    marginRight: '6%',
+    width: width * 0.88,
+    alignItems: 'center',
+    height: height * 0.25,
+  },
+  headlineView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: '7%',
+    marginRight: '7%',
+  },
+  headlineText: {
     color: colors.charcoal,
-    fontSize: 14,
+    fontFamily: fonts.avenirNext,
+    fontSize: 20,
+  },
+  line: {
+    flex: 1,
+    borderBottomColor: colors.charcoal,
+    borderBottomWidth: 0.5,
+    marginLeft: '3%',
   },
   stars: {
-    marginTop: 20,
-    marginLeft: 70,
-    marginRight: 70,
-  },
-  slideshow: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: colors.paper,
-  },
-  container2: {
-    flex: 1,
-    alignItems: 'center',
-    padding: 10,
-  },
-  menu: {
-    flexDirection: 'row',
-    marginTop: 20,
-    borderWidth: 1,
-    borderColor: '#d6d7da',
-    backgroundColor: 'white',
+    bottom: '-7%',
+    alignSelf: 'center',
+    position: 'absolute',
+    shadowColor: colors.charcoal,
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    shadowOffset: {
+      width: 0,
+      height: 7,
+    },
   },
 });
