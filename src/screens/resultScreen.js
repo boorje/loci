@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  ActionSheetIOS,
   Alert,
   Button,
   SafeAreaView,
@@ -9,41 +10,28 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 // -- Components --
-import colors from '../constants/colors';
-import Stars from '../components/stars';
+import PlaceInformation from '../components/placeInformation';
 import Slideshow from '../components/slideshow';
 import Review from '../components/review';
-import {GOOGLE_API_KEY} from '../constants/apiKeys';
+
+// -- Constants --
+import colors from '../constants/colors';
 
 // -- Helper Functions --
 import googleOcr from '../helpers/googleAPI/googleOcr';
 import searchPlace from '../helpers/googleAPI/searchPlace';
-import searchTextPlaces from '../helpers/googleAPI/searchTextPlaces';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
 import getReviews from '../helpers/googleAPI/getReviews';
 
-const ErrorScreen = errorMsg => {
-  alert(errorMsg);
-  return (
-    <SafeAreaView>
-      <Text>
-        An error as occurred: -- {errorMsg}. Below you have nearby places
-      </Text>
-      <Button title="Retake photo" />
-    </SafeAreaView>
-  );
-};
-
-// TODO: Add a screen/component which is rendered when an error occurs, i.e. text/place wasn't found
 class ResultScreen extends React.Component {
   state = {
     apiError: '',
     showPhotos: true,
-    height: 0,
-
-    // The place information
+    height: 0, // TODO: More descriptive
+    selectedType: this.props.navigation.getParam('selectedType', null),
     placeInfo: {
       name: '',
       type: '',
@@ -53,16 +41,6 @@ class ResultScreen extends React.Component {
       photos: [],
       reviews: [],
     },
-
-    name: '',
-    type: '',
-    rating: null,
-    user_ratings_total: '',
-    price_level: '',
-    photos: [],
-    reviews: [],
-
-    selectedType: this.props.navigation.getParam('selectedType', null),
   };
 
   componentDidMount = async () => {
@@ -119,51 +97,14 @@ class ResultScreen extends React.Component {
     this.setState({
       placeInfo: {
         name,
-        type: types ? this._modifyType(types[0]) : null,
+        type: types ? types[0] : null,
         rating: rating ? rating : null,
         user_ratings_total: user_ratings_total ? user_ratings_total : null,
-        price_level: price_level ? this._renderDollarsFrom(price_level) : null,
-        photos: photos ? this._extractUrl(photos) : null,
-        reviews: reviews ? this._extractReviewInfo(reviews) : null,
+        price_level: price_level ? price_level : null,
+        photos: photos ? photos : null,
+        reviews: reviews ? reviews : null,
       },
     });
-  };
-
-  _renderDollarsFrom = price => {
-    let price_level = '';
-    for (let index = 0; index < price; index++) {
-      price_level += '$';
-    }
-    return price_level;
-  };
-
-  _modifyType = type => {
-    if (type.includes('_')) {
-      type = type.replace('_', ' ');
-    }
-    return type.charAt(0).toUpperCase() + type.slice(1);
-  };
-
-  // ? Redundancy
-  _extractReviewInfo = reviews => {
-    return reviews.map((review, index) => ({
-      id: index,
-      author_name: review.author_name,
-      rating: review.rating,
-      time: review.time,
-      text: review.text,
-    }));
-  };
-
-  _extractUrl = info => {
-    const arrayObjects = info.map(photo => String(photo.photo_reference));
-    const url = 'https://maps.googleapis.com/maps/api/place/photo?';
-    const maxwidth = 'maxwidth=400';
-    const reference = '&photoreference=';
-    const key = '&key=' + GOOGLE_API_KEY;
-    return arrayObjects.map(
-      string => url + maxwidth + reference + string + key,
-    );
   };
 
   _toggleTabMenu = () => {
@@ -172,42 +113,38 @@ class ResultScreen extends React.Component {
       : this.setState({showPhotos: true});
   };
 
+  //? What is this?
   _onLayout = e => {
     this.setState({
       height: e.nativeEvent.layout.height,
     });
   };
 
+  _sharePlace = () => {
+    ActionSheetIOS.showShareActionSheetWithOptions(
+      {message: 'Check out this awesome restaurant'},
+      () => console.log('share failed'),
+      () => console.log('share succeeded'),
+    );
+  };
+
   render() {
     const {height, showPhotos, placeInfo} = this.state;
-    const {
-      name,
-      rating,
-      user_ratings_total,
-      price_level,
-      photos,
-      reviews,
-      type,
-    } = placeInfo;
-
     return (
       <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         <View>
-          <View style={{alignItems: 'center'}}>
-            <Text style={styles.name}>{name}</Text>
-            <Text style={styles.type}>{type}</Text>
-            <Text style={styles.type}>{price_level}</Text>
-          </View>
-          <Stars style={styles.stars} rating={rating} starSize={50} />
-          <View style={{alignItems: 'center'}}>
-            <Text style={styles.review}>
-              {rating}
-              <Text style={styles.review2}>
-                {' '}
-                baserat på {user_ratings_total} recensioner
-              </Text>
-            </Text>
-          </View>
+          <Icon.Button
+            backgroundColor={colors.palegold}
+            borderRadius={50}
+            underlayColor={colors.palegold}
+            size={20}
+            name="share"
+            color={colors.paper}
+            type="Feather"
+            onPress={() => this._sharePlace()}>
+            Share
+          </Icon.Button>
+          <PlaceInformation placeInfo={this.state.placeInfo} />
           <View style={styles.menu}>
             <TouchableOpacity
               style={showPhotos ? styles.container : styles.container2}
@@ -223,10 +160,10 @@ class ResultScreen extends React.Component {
         </View>
         <View style={styles.slideshow} onLayout={this._onLayout}>
           {showPhotos ? (
-            <Slideshow images={photos} height={height} />
+            <Slideshow images={placeInfo.photos} height={height} />
           ) : (
             <ScrollView keyboardShouldPersistTaps="always">
-              <Review reviews={reviews} />
+              <Review reviews={placeInfo.reviews} />
             </ScrollView>
           )}
         </View>
@@ -238,36 +175,6 @@ class ResultScreen extends React.Component {
 export default ResultScreen;
 
 const styles = StyleSheet.create({
-  name: {
-    marginTop: 50,
-    fontFamily: 'Avenir Next',
-    color: colors.charcoal,
-    fontWeight: 'bold',
-    fontSize: 30,
-  },
-  type: {
-    marginTop: 10,
-    fontFamily: 'Avenir Next',
-    color: colors.charcoal,
-    fontSize: 18,
-  },
-  review: {
-    marginTop: 5,
-    fontFamily: 'Avenir Next',
-    color: colors.charcoal,
-    fontSize: 20,
-  },
-  review2: {
-    marginTop: 5,
-    fontFamily: 'Avenir Next',
-    color: colors.charcoal,
-    fontSize: 14,
-  },
-  stars: {
-    marginTop: 20,
-    marginLeft: 70,
-    marginRight: 70,
-  },
   slideshow: {
     flex: 1,
     justifyContent: 'center',

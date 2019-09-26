@@ -85,7 +85,6 @@ export default class HomeScreen extends React.Component {
       this._getInfoFrom(editedPhoto.data);
     } catch (error) {
       // The error is thrown when a user cancels the edit. Should not throw error
-      alert('Something went wrong when taking or editing the photo');
     }
   };
 
