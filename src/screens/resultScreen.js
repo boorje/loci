@@ -89,11 +89,11 @@ class ResultScreen extends React.Component {
     let thePlaceInfo;
     const {selectedType} = this.state;
     if (selectedType === 'PHOTO') {
-      //const base64 = this.props.navigation.getParam('base64', null);
+      const base64 = this.props.navigation.getParam('base64', null);
       const userLocation = this.props.navigation.getParam('userLocation', null);
       //? Why is await not affecting?
-      //const detectedName = await googleOcr(base64);
-      const detectedPlace = await searchPlace('Milano boggi', userLocation);
+      const detectedName = await googleOcr(base64);
+      const detectedPlace = await searchPlace(detectedName, userLocation);
       thePlaceInfo = await getPlaceDetails(detectedPlace);
     } else if (selectedType === 'NEARBY' || 'SEARCH') {
       thePlaceInfo = this.props.navigation.getParam('placeInfo', null);

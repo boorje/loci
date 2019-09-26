@@ -49,7 +49,7 @@ const searchPlace = async (searchText, userLocation = null) => {
       const jsonResponse = await response.json();
       resolve(jsonResponse.candidates[0].place_id);
     } catch (error) {
-      reject(`The search <${searchText}> gave no results`);
+      reject(`The text detected "${searchText}" gave no results`);
     }
   });
 };
