@@ -5,7 +5,7 @@ import ListOfPlaces from '../components/listOfPlaces';
 
 import searchTextPlaces from '../helpers/googleAPI/searchTextPlaces';
 
-export default class SearchOptionsScreen extends React.Component {
+export default class SearchOptionsModal extends React.Component {
   state = {
     foundPlaces: [],
   };
@@ -40,7 +40,6 @@ export default class SearchOptionsScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>
-        <Button onPress={() => this.props.navigation.goBack()} title="Back" />
         <Text style={{fontSize: 20, textAlign: 'center', marginBottom: 20}}>
           Result from search
         </Text>
@@ -48,6 +47,7 @@ export default class SearchOptionsScreen extends React.Component {
           places={this.state.foundPlaces}
           navigateToPlace={index => this.showInfoFor(index)}
         />
+        <Button onPress={() => this.props.navigation.goBack()} title="Back" />
       </SafeAreaView>
     );
   }

@@ -8,7 +8,7 @@ import HomeScreen from './src/screens/homeScreen';
 import ResultScreen from './src/screens/resultScreen';
 
 // Modal
-import SearchOptionsModal from './src/screens/searchOptionsScreen';
+import SearchOptionsModal from './src/screens/searchOptionsModal';
 
 Icon.loadFont();
 
@@ -31,6 +31,7 @@ const RootStack = createStackNavigator(
     },
   },
   {
+    //card or modal
     mode: 'card',
     headerMode: 'none',
   },
