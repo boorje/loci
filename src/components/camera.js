@@ -55,8 +55,9 @@ export default class AppCamera extends React.Component {
 
 const styles = StyleSheet.create({
   cameraView: {
-    flex: 1,
     backgroundColor: colors.paper,
+    flex: 5,
+    zIndex: 10,
   },
   camera: {
     flex: 1,

@@ -49,11 +49,16 @@ export default class HomeScreen extends React.Component {
   componentDidMount = async () => {
     try {
       const foundLocation = await this._getCoordinates();
-      if (foundLocation) {
-        let nearbyPlaces = await findNearbyPlaces();
-        nearbyPlaces = this._addDistanceTo(nearbyPlaces);
-        this.setState({nearbyPlaces});
+      if (!foundLocation) {
+        // TODO: What happens when location isn't found?
+        console.log('Could not find location.');
       }
+      this.setState({
+        userLocation: {
+          latitude: foundLocation.latitude,
+          longitude: foundLocation.longitude,
+        },
+      });
     } catch (error) {
       // TODO: What happens when location isn't found?
       console.log('Could not find location.');
@@ -74,9 +79,7 @@ export default class HomeScreen extends React.Component {
 
   _getCoordinates = async () => {
     const coords = await getPosition();
-    const {latitude, longitude} = coords.coords;
-    this.setState({userLocation: {latitude, longitude}});
-    return true;
+    return coords.coords;
   };
 
   takePhoto = async photo => {
@@ -101,6 +104,15 @@ export default class HomeScreen extends React.Component {
       : this.setState({showNearbyPlacesList: true});
   };
 
+  _getNearbyPlaces = async () => {
+    const {latitude, longitude} = this.state.userLocation;
+    if (latitude && longitude) {
+      let nearbyPlaces = await findNearbyPlaces();
+      nearbyPlaces = this._addDistanceTo(nearbyPlaces);
+      this.setState({nearbyPlaces});
+    }
+  };
+
   //    -- NAVIGATATION TO RESULTS PAGE --
   _getInfoFrom = base64 => {
     this.props.navigation.navigate('Results', {
@@ -121,14 +133,14 @@ export default class HomeScreen extends React.Component {
     });
   };
 
-  // Show modal with the top 5 results
+  //   -- NAVIGATE TO SEARCH RESULTS MODAL --
   searchInfoFor = place => {
     this.props.navigation.navigate('SearchOptionsModal', {
       searchText: place,
     });
   };
-  //    -- NAVIGATE TO RESULTS PAGE END --
 
+  //    -- NAVIGATE TO FAVORITES MODAL --
   showFavorites = place => {
     this.props.navigation.navigate('FavoritesModal', {
       searchText: place,
@@ -136,18 +148,23 @@ export default class HomeScreen extends React.Component {
   };
 
   render() {
-    const {nearbyPlaces} = this.state;
+    const {nearbyPlaces, showNearbyPlacesList} = this.state;
     return (
       <SafeAreaView style={{flex: 1}}>
         <SearchBar searchFor={searchText => this.searchInfoFor(searchText)} />
         <Button title="Favorites" onPress={() => this.showFavorites()} />
-        <View style={{flex: 5, zIndex: 10}}>
-          <Camera takePhoto={photo => this.takePhoto(photo)} />
-        </View>
-        {nearbyPlaces.length > 0 && (
-          <View style={{flex: this.state.showNearbyPlacesList ? 5 : 1}}>
+        <Camera takePhoto={photo => this.takePhoto(photo)} />
+        {nearbyPlaces.length < 1 ? (
+          <View style={{flex: 0.7, justifyContent: 'flex-end'}}>
+            <Button
+              title="Show nearby places"
+              onPress={() => this._getNearbyPlaces()}
+            />
+          </View>
+        ) : (
+          <View style={{flex: showNearbyPlacesList ? 5 : 1}}>
             <ListOfPlaces
-              places={this.state.nearbyPlaces}
+              places={nearbyPlaces}
               navigateToPlace={index => this.showInfoFor(index)}
               toggleListOfPlaces={() => this.toggleListOfPlaces()}
               arrowIconDirection={
