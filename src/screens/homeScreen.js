@@ -107,7 +107,7 @@ export default class HomeScreen extends React.Component {
   };
 
   _getNearbyPlaces = async () => {
-    if (this.state.userLocation) {
+    if (!this.state.userLocation) {
       Alert.alert(
         'Oops',
         'Enable location service to be able to see places near your location.',
