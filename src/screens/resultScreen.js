@@ -1,6 +1,8 @@
 import React from 'react';
 import {
+  ActionSheetIOS,
   Alert,
+  Button,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -8,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 // -- Components --
 import PlaceInformation from '../components/placeInformation';
@@ -117,11 +120,30 @@ class ResultScreen extends React.Component {
     });
   };
 
+  _sharePlace = () => {
+    ActionSheetIOS.showShareActionSheetWithOptions(
+      {message: 'Check out this awesome restaurant'},
+      () => console.log('share failed'),
+      () => console.log('share succeeded'),
+    );
+  };
+
   render() {
     const {height, showPhotos, placeInfo} = this.state;
     return (
       <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         <View>
+          <Icon.Button
+            backgroundColor={colors.palegold}
+            borderRadius={50}
+            underlayColor={colors.palegold}
+            size={20}
+            name="share"
+            color={colors.paper}
+            type="Feather"
+            onPress={() => this._sharePlace()}>
+            Share
+          </Icon.Button>
           <PlaceInformation placeInfo={this.state.placeInfo} />
           <View style={styles.menu}>
             <TouchableOpacity
