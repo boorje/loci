@@ -30,9 +30,25 @@ const getPlaceDetails = async placeId => {
         },
       });
       const jsonResponse = await response.json();
+
+      // Check if restaurant is included in array of types
+      let isRestaurant = false;
+      jsonResponse.result.types.map(type => {
+        if (type === 'restaurant') {
+          isRestaurant = true;
+        }
+      });
+
+      // Reject if not restaurant
+      if (!isRestaurant) {
+        reject(`"${jsonResponse.result.name}" is not a restaurant.`);
+      }
+
       resolve(jsonResponse.result);
     } catch (error) {
-      reject(`Place Details ERROR: ${error}`);
+      reject(
+        'Could not find any details about the restaurant you are looking for',
+      );
     }
   });
 };

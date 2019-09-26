@@ -41,7 +41,7 @@ const searchTextPlaces = async searchQuery => {
       const jsonResponse = await response.json();
       resolve(jsonResponse.results);
     } catch (error) {
-      reject(`Place Search ERROR: ${error}`);
+      reject('Could not find any restaurants from your search');
     }
   });
 };

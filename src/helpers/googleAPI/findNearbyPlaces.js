@@ -40,7 +40,7 @@ const findNearbyPlaces = () => {
       const jsonResponse = await response.json();
       resolve(jsonResponse.results);
     } catch (error) {
-      reject(`Place Search ERROR: ${error}`);
+      reject('Could not find any nearby restaurants');
     }
   });
 };

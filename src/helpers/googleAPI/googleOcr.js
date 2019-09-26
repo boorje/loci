@@ -34,7 +34,7 @@ const googleOcr = async base64 => {
       const responseJson = await response.json();
       resolve(responseJson.responses[0].textAnnotations[0].description);
     } catch (error) {
-      reject(`Google OCR ERROR: ${error}`);
+      reject('Could not detect any text in the photo');
     }
   });
 };

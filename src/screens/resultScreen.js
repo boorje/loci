@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Alert,
   Button,
   SafeAreaView,
   ScrollView,
@@ -71,8 +72,16 @@ class ResultScreen extends React.Component {
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
       // Google API - name not found -> present nearby locations or retake photo. Add description on how to take proper photo
-      alert('Something went wrong. Please try again');
+
       this.setState({apiError: error});
+      Alert.alert(error, 'Please try again.', [
+        {text: 'Search again', onPress: () => this.props.navigation.goBack()},
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+      ]);
     }
   };
 
@@ -80,13 +89,15 @@ class ResultScreen extends React.Component {
     let thePlaceInfo;
     const {selectedType} = this.state;
     if (selectedType === 'PHOTO') {
-      const base64 = this.props.navigation.getParam('base64', null);
+      //const base64 = this.props.navigation.getParam('base64', null);
       const userLocation = this.props.navigation.getParam('userLocation', null);
-      const detectedName = await googleOcr(base64);
-      const detectedPlace = await searchPlace(detectedName, userLocation);
+      //? Why is await not affecting?
+      //const detectedName = await googleOcr(base64);
+      const detectedPlace = await searchPlace('Milano boggi', userLocation);
       thePlaceInfo = await getPlaceDetails(detectedPlace);
     } else if (selectedType === 'NEARBY' || 'SEARCH') {
       thePlaceInfo = this.props.navigation.getParam('placeInfo', null);
+      //? Why is await not affecting?
       thePlaceInfo.reviews = await getReviews(thePlaceInfo.place_id);
     } else {
       throw 'Could not load any information. Please try again.';
