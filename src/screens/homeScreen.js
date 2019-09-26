@@ -14,6 +14,9 @@ import ImagePicker from 'react-native-image-crop-picker';
 import Camera from '../components/camera';
 import SearchBar from '../components/searchBar';
 
+// -- Constants --
+import {springAnimation} from '../constants/animations';
+
 // --- Helper Functions ---
 import ListOfPlaces from '../components/listOfPlaces';
 import findNearbyPlaces from '../helpers/googleAPI/findNearbyPlaces';
@@ -24,19 +27,6 @@ import getDistanceTo from '../helpers/getDistanceTo';
 const {UIManager} = NativeModules;
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
-
-const springAnimation = {
-  duration: 300,
-  create: {
-    type: LayoutAnimation.Types.spring,
-    property: LayoutAnimation.Properties.scaleXY,
-    springDamping: 1,
-  },
-  update: {
-    type: LayoutAnimation.Types.spring,
-    springDamping: 1,
-  },
-};
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
@@ -126,6 +116,7 @@ export default class HomeScreen extends React.Component {
       let nearbyPlaces = await findNearbyPlaces();
       nearbyPlaces = this._addDistanceTo(nearbyPlaces);
       this.setState({nearbyPlaces});
+      this.toggleListOfPlaces();
     }
   };
 
