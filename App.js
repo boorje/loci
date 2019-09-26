@@ -1,7 +1,7 @@
 import React from 'react';
 import {createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 // Screens
 import HomeScreen from './src/screens/homeScreen';
@@ -13,14 +13,20 @@ import FavoritesModal from './src/screens/favoritesModal';
 
 Icon.loadFont();
 
-const MainStack = createStackNavigator({
-  Home: {
-    screen: HomeScreen,
+const MainStack = createStackNavigator(
+  {
+    Home: {
+      screen: HomeScreen,
+    },
+    Results: {
+      screen: ResultScreen,
+    },
   },
-  Results: {
-    screen: ResultScreen,
+  {
+    mode: 'modal',
+    headerMode: 'none',
   },
-});
+);
 
 const RootStack = createStackNavigator(
   {

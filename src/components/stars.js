@@ -9,11 +9,11 @@ const Stars = props => {
       disabled={true}
       maxStars={5}
       starSize={props.starSize}
-      emptyStar={'star-o'}
+      emptyStar={'star'}
       fullStar={'star'}
-      halfStar={'star-half-full'}
-      iconSet={'FontAwesome'}
-      fullStarColor={colors.palegold}
+      halfStar={'star-half'}
+      iconSet={'MaterialIcons'}
+      fullStarColor={colors.golden}
       emptyStarColor={colors.silk}
       rating={props.rating}
       containerStyle={props.style}

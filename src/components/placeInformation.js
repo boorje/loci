@@ -2,19 +2,17 @@ import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import PropTypes from 'prop-types';
 
-import Stars from './stars';
-
 import colors from '../constants/colors';
 
 const _renderDollarsFrom = price => {
-  if (price === null) {
+  if (price === null || price < 1) {
     return null;
   }
   let price_level = '';
   for (let index = 0; index < price; index++) {
     price_level += '$';
   }
-  return price_level;
+  return `- ${price_level}`;
 };
 
 const _modifyType = type => {
@@ -30,24 +28,15 @@ const _modifyType = type => {
 };
 
 const PlaceInformation = props => {
-  const {name, type, price_level, rating, user_ratings_total} = props.placeInfo;
+  const {name, type, price_level, user_ratings_total} = props.placeInfo;
   return (
-    <View>
-      <View style={{alignItems: 'center'}}>
-        <Text style={styles.name}>{name}</Text>
-        <Text style={styles.type}>{_modifyType(type)}</Text>
-        <Text style={styles.type}>{_renderDollarsFrom(price_level)}</Text>
-      </View>
-      <Stars style={styles.stars} rating={rating} starSize={50} />
-      <View style={{alignItems: 'center'}}>
-        <Text style={styles.review}>
-          {rating}
-          <Text style={styles.review2}>
-            {' '}
-            baserat på {user_ratings_total} recensioner
-          </Text>
-        </Text>
-      </View>
+    <View
+      style={{width: props.width * 0.7, marginBottom: '10%', marginLeft: '7%'}}>
+      <Text style={styles.name}>{name}</Text>
+      <Text style={styles.type}>
+        {_modifyType(type)} {_renderDollarsFrom(price_level)}
+      </Text>
+      {/* <Text style={styles.review2}>based on {user_ratings_total} reviews </Text> */}
     </View>
   );
 };

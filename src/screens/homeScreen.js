@@ -175,7 +175,9 @@ export default class HomeScreen extends React.Component {
               navigateToPlace={index => this.showInfoFor(index)}
               toggleListOfPlaces={() => this.toggleListOfPlaces()}
               arrowIconDirection={
-                this.state.showNearbyPlacesList ? 'arrow-down' : 'arrow-up'
+                this.state.showNearbyPlacesList
+                  ? 'arrow-drop-down'
+                  : 'arrow-drop-up'
               }
             />
           </View>

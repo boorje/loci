@@ -1,22 +1,17 @@
 import React from 'react';
-import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Alert, ScrollView, StyleSheet, Dimensions, View} from 'react-native';
 
 // -- Components --
-import PlaceInformation from '../components/placeInformation';
-import Slideshow from '../components/slideshow';
+import Stars from '../components/stars';
 import Review from '../components/review';
-import Header from '../components/header';
+import Gallery from '../components/gallery';
+import TopBar from '../components/topBar';
+import PlaceInformation from '../components/placeInformation';
+import Section from '../components/section';
 
 // -- Constants --
 import colors from '../constants/colors';
+import fonts from '../constants/fonts';
 
 // -- Helper Functions --
 import googleOcr from '../helpers/googleAPI/googleOcr';
@@ -24,17 +19,16 @@ import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
 import getReviews from '../helpers/googleAPI/getReviews';
 
-// TODO: ADD DATA FLOW FOR WHEN SELECTED A FAVORITE PLACE
+const {height, width} = Dimensions.get('window');
+
 class ResultScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
-
   state = {
     loading: true,
     apiError: '',
     showPhotos: true,
-    height: 0,
     selectedType: this.props.navigation.getParam('selectedType', null),
     placeInfo: {
       name: '',
@@ -45,6 +39,10 @@ class ResultScreen extends React.Component {
       photos: [],
       reviews: [],
     },
+  };
+
+  closeScreen = () => {
+    this.props.navigation.goBack();
   };
 
   componentDidMount = async () => {
@@ -118,43 +116,43 @@ class ResultScreen extends React.Component {
       : this.setState({showPhotos: true});
   };
 
-  //? What is this?
-  _onLayout = e => {
-    this.setState({
-      height: e.nativeEvent.layout.height,
-    });
-  };
-
   render() {
-    const {loading, height, showPhotos, placeInfo} = this.state;
+    const {placeInfo} = this.state;
+    console.log(placeInfo);
     return (
-      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-        <View>
-          {!loading && <Header placeInfo={placeInfo} />}
-          <PlaceInformation placeInfo={this.state.placeInfo} />
-          <View style={styles.menu}>
-            <TouchableOpacity
-              style={showPhotos ? styles.container : styles.container2}
-              onPress={this._toggleTabMenu}>
-              <Text style={{fontFamily: 'Avenir Next'}}> Bilder </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={!showPhotos ? styles.container : styles.container2}
-              onPress={this._toggleTabMenu}>
-              <Text style={{fontFamily: 'Avenir Next'}}> Recensioner </Text>
-            </TouchableOpacity>
-          </View>
+      <View style={{flex: 1}}>
+        {/* PLACE INFORMATION  */}
+        <View style={styles.topContainer}>
+          <TopBar
+            closeScreen={() => this.closeScreen()}
+            placeInfo={placeInfo}
+          />
+          <PlaceInformation placeInfo={placeInfo} width={width} />
+          <Stars style={styles.stars} rating={placeInfo.rating} starSize={65} />
         </View>
-        <View style={styles.slideshow} onLayout={this._onLayout}>
-          {showPhotos ? (
-            <Slideshow images={placeInfo.photos} height={height} />
-          ) : (
-            <ScrollView keyboardShouldPersistTaps="always">
+
+        <View style={styles.bottomContainer}>
+          {/* IMAGES */}
+          <Section title="Images">
+            <View style={styles.gallery}>
+              <Gallery
+                width={width * 0.88}
+                height={height * 0.2}
+                photos={placeInfo.photos}
+              />
+            </View>
+          </Section>
+
+          {/* REVIEWS */}
+          <Section title="Reviews">
+            <ScrollView
+              style={{width: width * 0.88, marginBottom: '-5%'}}
+              keyboardShouldPersistTaps="always">
               <Review reviews={placeInfo.reviews} />
             </ScrollView>
-          )}
+          </Section>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 }
@@ -162,26 +160,72 @@ class ResultScreen extends React.Component {
 export default ResultScreen;
 
 const styles = StyleSheet.create({
-  slideshow: {
-    flex: 1,
-    justifyContent: 'center',
+  topContainer: {
+    backgroundColor: colors.surf,
+    flex: 3,
+    justifyContent: 'space-evenly',
   },
-  container: {
-    flex: 1,
+  bottomContainer: {
+    flex: 6,
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: 10,
-    backgroundColor: colors.paper,
   },
-  container2: {
+  name: {
+    fontFamily: fonts.avenirNext,
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 30,
+  },
+  type: {
+    fontFamily: fonts.avenirNext,
+    color: 'white',
+    fontSize: 20,
+  },
+  images: {
     flex: 1,
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: 10,
+    marginTop: '10%',
   },
-  menu: {
+  reviews: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  gallery: {
+    marginTop: '6%',
+    marginRight: '6%',
+    width: width * 0.88,
+    alignItems: 'center',
+    height: height * 0.25,
+  },
+  headlineView: {
     flexDirection: 'row',
-    marginTop: 20,
-    borderWidth: 1,
-    borderColor: '#d6d7da',
-    backgroundColor: 'white',
+    alignItems: 'center',
+    marginLeft: '7%',
+    marginRight: '7%',
+  },
+  headlineText: {
+    color: colors.charcoal,
+    fontFamily: fonts.avenirNext,
+    fontSize: 20,
+  },
+  line: {
+    flex: 1,
+    borderBottomColor: colors.charcoal,
+    borderBottomWidth: 0.5,
+    marginLeft: '3%',
+  },
+  stars: {
+    bottom: '-7%',
+    alignSelf: 'center',
+    position: 'absolute',
+    shadowColor: colors.charcoal,
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    shadowOffset: {
+      width: 0,
+      height: 7,
+    },
   },
 });
