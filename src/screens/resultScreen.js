@@ -70,7 +70,6 @@ class ResultScreen extends React.Component {
   _fetchInfoAboutPlace = async () => {
     let thePlaceInfo;
     const {selectedType} = this.state;
-    console.log(selectedType);
     if (selectedType === 'PHOTO') {
       const base64 = this.props.navigation.getParam('base64', null);
       const userLocation = this.props.navigation.getParam('userLocation', null);
