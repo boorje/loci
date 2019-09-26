@@ -132,7 +132,7 @@ export default class HomeScreen extends React.Component {
         <View style={{flex: 5, zIndex: 10}}>
           <Camera takePhoto={photo => this.takePhoto(photo)} />
         </View>
-        {nearbyPlaces.length !== 0 && (
+        {nearbyPlaces.length > 0 && (
           <View style={{flex: this.state.showNearbyPlacesList ? 5 : 1}}>
             <ListOfPlaces
               places={this.state.nearbyPlaces}

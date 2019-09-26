@@ -1,5 +1,5 @@
 import React from 'react';
-import {Alert, Button, Text, SafeAreaView} from 'react-native';
+import {Alert, Button, Text, SafeAreaView, View} from 'react-native';
 
 import ListOfPlaces from '../components/listOfPlaces';
 
@@ -40,14 +40,14 @@ export default class SearchOptionsScreen extends React.Component {
   render() {
     return (
       <SafeAreaView style={{flex: 1}}>
+        <Button onPress={() => this.props.navigation.goBack()} title="Back" />
         <Text style={{fontSize: 20, textAlign: 'center', marginBottom: 20}}>
-          Select Restaurant
+          Result from search
         </Text>
         <ListOfPlaces
           places={this.state.foundPlaces}
           navigateToPlace={index => this.showInfoFor(index)}
         />
-        <Button onPress={() => this.props.navigation.goBack()} title="Back" />
       </SafeAreaView>
     );
   }
