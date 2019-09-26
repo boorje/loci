@@ -20,7 +20,7 @@ const RenderPlace = props => {
   const {place} = props;
   const {name, distanceTo, rating, user_ratings_total} = place.item;
   const distanceAway = _classifyDistanceAway(distanceTo);
-  const type = place.item.types[0];
+  const type = place.item.types ? place.item.types[0] : place.item.type;
   const isOpen = place.item.opening_hours
     ? place.item.opening_hours.open_now
       ? 'open'
@@ -44,20 +44,21 @@ const _flatListItemSeparator = () => <View style={styles.separator} />;
 
 const ListOfPlaces = props => {
   return (
-    <View style={{flex: 1, backgroundColor: colors.paper}}>
-      <View style={styles.headView}>
-        <Text style={styles.headLine}>Places nearby</Text>
-        <Icon.Button
-          backgroundColor="transparent"
-          underlayColor="transparent"
-          marginRight={10}
-          size={40}
-          name={props.name}
-          color={colors.charcoal}
-          onPress={() => props.showList()}
-        />
-      </View>
-
+    <View style={{flex: 1}}>
+      {props.arrowIconDirection && (
+        <View style={styles.headView}>
+          <Text style={styles.headLine}>Places nearby</Text>
+          <Icon.Button
+            backgroundColor="transparent"
+            underlayColor="transparent"
+            marginRight={10}
+            size={50}
+            name={props.arrowIconDirection}
+            color={colors.charcoal}
+            onPress={() => props.toggleListOfPlaces()}
+          />
+        </View>
+      )}
       <FlatList
         data={props.places}
         renderItem={place => (
@@ -66,7 +67,7 @@ const ListOfPlaces = props => {
             navigateToPlace={index => props.navigateToPlace(index)}
           />
         )}
-        keyExtractor={place => place.id}
+        keyExtractor={place => (place.id ? place.id : place.name)}
         ItemSeparatorComponent={_flatListItemSeparator}
       />
     </View>
@@ -110,6 +111,6 @@ const styles = StyleSheet.create({
 ListOfPlaces.proptypes = {
   places: PropTypes.array.isRequired,
   navigateToPlace: PropTypes.func.isRequired,
-  showList: PropTypes.func.isRequired,
-  name: PropTypes.string.isRequired,
+  toggleListOfPlaces: PropTypes.func, //TODO: isRequired ?
+  arrowIconDirection: PropTypes.string, //TODO: isRequired ?
 };

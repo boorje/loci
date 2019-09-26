@@ -5,12 +5,21 @@ import PropTypes from 'prop-types';
 import fonts from '../constants/fonts';
 import colors from '../constants/colors';
 
-const _createDateFrom = timestamp =>
-  new Date(timestamp * 1000)
+// -- Helper functions --
+const _createDateFrom = timestamp => {
+  return new Date(timestamp * 1000)
     .toDateString()
     .split(' ')
     .slice(1, 4)
     .join(' ');
+};
+
+const _sortBy = time => {
+  return (a, b) => b[time] - a[time];
+};
+// -- END: Helper functions --
+
+const _flatListItemSeparator = () => <View style={styles.separator} />;
 
 const RenderReview = review => {
   return (
@@ -42,18 +51,12 @@ const RenderReview = review => {
   );
 };
 
-const _flatListItemSeparator = () => <View style={styles.separator} />;
-
-const _sortBy = time => {
-  return (a, b) => b[time] - a[time];
-};
-
 const Review = props => {
   return (
     <FlatList
       keyboardShouldPersistTaps="always"
       data={props.reviews.sort(_sortBy('time'))}
-      keyExtractor={review => review.time.toString()}
+      keyExtractor={review => `${review.time.toString()}-${review.author_name}`}
       renderItem={review => RenderReview(review)}
       ItemSeparatorComponent={_flatListItemSeparator}
     />

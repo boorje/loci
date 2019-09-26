@@ -1,23 +1,17 @@
 import React from 'react';
-import {
-  Button,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  Dimensions,
-  View,
-} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import {Alert, ScrollView, StyleSheet, Dimensions, View} from 'react-native';
 
 // -- Components --
-import colors from '../constants/colors';
-import fonts from '../constants/fonts';
 import Stars from '../components/stars';
 import Review from '../components/review';
-import {GOOGLE_API_KEY} from '../constants/apiKeys';
 import Gallery from '../components/gallery';
 import TopBar from '../components/topBar';
+import PlaceInformation from '../components/placeInformation';
+import Section from '../components/section';
+
+// -- Constants --
+import colors from '../constants/colors';
+import fonts from '../constants/fonts';
 
 // -- Helper Functions --
 import googleOcr from '../helpers/googleAPI/googleOcr';
@@ -25,47 +19,26 @@ import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
 import getReviews from '../helpers/googleAPI/getReviews';
 
-const ErrorScreen = errorMsg => {
-  alert(errorMsg);
-  return (
-    <SafeAreaView>
-      <Text>
-        An error as occurred: -- {errorMsg}. Below you have nearby places
-      </Text>
-      <Button title="Retake photo" />
-    </SafeAreaView>
-  );
-};
-
 const {height, width} = Dimensions.get('window');
 
-// TODO: Add a screen/component which is rendered when an error occurs, i.e. text/place wasn't found
 class ResultScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
   state = {
-    thePlace: {},
     loading: true,
     apiError: '',
     showPhotos: true,
-    height: 0,
-
-    // The place information
-    name: '',
-    type: '',
-    rating: null,
-    user_ratings_total: '',
-    price_level: '',
-    photos: [],
-    reviews: [],
-
-    // From homescreen
-    base64: this.props.navigation.getParam('base64', null),
-    nearbyPlaces: this.props.navigation.getParam('nearbyPlaces', null),
-    userLocation: this.props.navigation.getParam('userLocation', null),
-    selectedPlace: this.props.navigation.getParam('selectedPlace', null),
-    isNearbyPlace: this.props.navigation.getParam('isNearbyPlace', false),
+    selectedType: this.props.navigation.getParam('selectedType', null),
+    placeInfo: {
+      name: '',
+      type: '',
+      rating: null,
+      user_ratings_total: '',
+      price_level: '',
+      photos: [],
+      reviews: [],
+    },
   };
 
   closeScreen = () => {
@@ -74,103 +47,67 @@ class ResultScreen extends React.Component {
 
   componentDidMount = async () => {
     try {
-      const placeInfo = await this._loadInfo();
-      //console.log(placeInfo);
+      const placeInfo = await this._fetchInfoAboutPlace();
       await this._updateStateWith(placeInfo);
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
       // Google API - name not found -> present nearby locations or retake photo. Add description on how to take proper photo
-      alert('Something went wrong. Please try again');
       this.setState({apiError: error});
+      Alert.alert(error, 'Please try again.', [
+        {text: 'Search again', onPress: () => this.props.navigation.goBack()},
+        {
+          text: 'Nearby places',
+          onPress: () => console.log('Show nearby places'),
+        },
+      ]);
     }
     this.setState({loading: false});
   };
 
-  _loadInfo = async () => {
+  _fetchInfoAboutPlace = async () => {
     let thePlaceInfo;
-    // if photo is taken in homescreen
-    if (!this.state.isNearbyPlace) {
-      thePlaceInfo = await this._fetchPlaceInfoFrom(this.state.base64);
-      // if place is selected from nearby places
+    const {selectedType} = this.state;
+    if (selectedType === 'PHOTO') {
+      const base64 = this.props.navigation.getParam('base64', null);
+      const userLocation = this.props.navigation.getParam('userLocation', null);
+      //? Why is await not affecting?
+      const detectedName = await googleOcr(base64);
+      const detectedPlace = await searchPlace(detectedName, userLocation);
+      thePlaceInfo = await getPlaceDetails(detectedPlace);
+    } else if (selectedType === 'NEARBY' || selectedType === 'SEARCH') {
+      thePlaceInfo = this.props.navigation.getParam('placeInfo', null);
+      //? Why is await not affecting?
+      thePlaceInfo.reviews = await getReviews(thePlaceInfo.place_id);
+    } else if (selectedType === 'FAVORITE') {
+      thePlaceInfo = this.props.navigation.getParam('placeInfo', null);
     } else {
-      thePlaceInfo = this.state.selectedPlace;
-      // add the reviews
+      throw 'Could not load any information. Please try again.';
     }
-
     return thePlaceInfo;
   };
 
   _updateStateWith = async placeInfo => {
     const {
-      place_id,
       name,
       types,
       rating,
       user_ratings_total,
       price_level,
       photos,
+      reviews,
     } = placeInfo;
 
-    let {reviews} = placeInfo;
-
-    if (this.state.isNearbyPlace) {
-      reviews = await getReviews(place_id);
-    }
-
     this.setState({
-      name,
-      type: types ? this._modifyType(types[0]) : null,
-      rating: rating ? rating : null,
-      user_ratings_total: user_ratings_total ? user_ratings_total : null,
-      price_level: price_level ? this._renderDollarsFrom(price_level) : null,
-      photos: photos ? this._extractUrl(photos) : null,
-      reviews: reviews ? this._extractReviewInfo(reviews) : null,
+      placeInfo: {
+        name,
+        type: types ? types[0] : null,
+        rating: rating ? rating : null,
+        user_ratings_total: user_ratings_total ? user_ratings_total : null,
+        price_level: price_level ? price_level : null,
+        photos: photos ? photos : null,
+        reviews: reviews ? reviews : null,
+      },
     });
-  };
-
-  _fetchPlaceInfoFrom = async base64 => {
-    const detectedName = await googleOcr(base64);
-    const detectedPlace = await searchPlace(
-      detectedName,
-      this.state.userLocation,
-    );
-    return await getPlaceDetails(detectedPlace);
-  };
-
-  _renderDollarsFrom = price => {
-    let price_level = '';
-    for (let index = 0; index < price; index++) {
-      price_level += '$';
-    }
-    return price_level;
-  };
-
-  _modifyType = type => {
-    if (type.includes('_')) {
-      type = type.replace('_', ' ');
-    }
-    return type.charAt(0).toUpperCase() + type.slice(1);
-  };
-
-  _extractReviewInfo = reviews => {
-    return reviews.map((review, index) => ({
-      id: index,
-      author_name: review.author_name,
-      rating: review.rating,
-      time: review.time,
-      text: review.text,
-    }));
-  };
-
-  _extractUrl = info => {
-    const arrayObjects = info.map(photo => String(photo.photo_reference));
-    const url = 'https://maps.googleapis.com/maps/api/place/photo?';
-    const maxwidth = 'maxwidth=400';
-    const reference = '&photoreference=';
-    const key = '&key=' + GOOGLE_API_KEY;
-    return arrayObjects.map(
-      string => url + maxwidth + reference + string + key,
-    );
   };
 
   _toggleTabMenu = () => {
@@ -179,56 +116,41 @@ class ResultScreen extends React.Component {
       : this.setState({showPhotos: true});
   };
 
-  _onLayout = e => {
-    this.setState({
-      height: e.nativeEvent.layout.height,
-    });
-  };
-
   render() {
+    const {placeInfo} = this.state;
+    console.log(placeInfo);
     return (
       <View style={{flex: 1}}>
+        {/* PLACE INFORMATION  */}
         <View style={styles.topContainer}>
-          <View style={{marginTop: '10%', marginRight: '3%', marginLeft: '4%'}}>
-            <TopBar closeScreen={() => this.closeScreen()} />
-          </View>
-          <View
-            style={{width: width * 0.7, marginBottom: '10%', marginLeft: '7%'}}>
-            <Text style={styles.name}>{this.state.name}</Text>
-            <Text style={styles.type}>
-              {this.state.type} - {this.state.price_level}
-            </Text>
-          </View>
-
-          <Stars
-            style={styles.stars}
-            rating={this.state.rating}
-            starSize={65}
+          <TopBar
+            closeScreen={() => this.closeScreen()}
+            placeInfo={placeInfo}
           />
+          <PlaceInformation placeInfo={placeInfo} width={width} />
+          <Stars style={styles.stars} rating={placeInfo.rating} starSize={65} />
         </View>
 
         <View style={styles.bottomContainer}>
-          <View style={styles.images}>
-            <View style={styles.headlineView}>
-              <Text style={styles.headlineText}>Images</Text>
-              <View style={styles.line} />
-            </View>
+          {/* IMAGES */}
+          <Section title="Images">
             <View style={styles.gallery}>
-              <Gallery width={width * 0.88} height={height * 0.2} />
+              <Gallery
+                width={width * 0.88}
+                height={height * 0.2}
+                photos={placeInfo.photos}
+              />
             </View>
-          </View>
+          </Section>
 
-          <View style={styles.reviews}>
-            <View style={styles.headlineView}>
-              <Text style={styles.headlineText}>Reviews</Text>
-              <View style={styles.line} />
-            </View>
+          {/* REVIEWS */}
+          <Section title="Reviews">
             <ScrollView
               style={{width: width * 0.88, marginBottom: '-5%'}}
               keyboardShouldPersistTaps="always">
-              <Review reviews={this.state.reviews} />
+              <Review reviews={placeInfo.reviews} />
             </ScrollView>
-          </View>
+          </Section>
         </View>
       </View>
     );

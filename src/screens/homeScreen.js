@@ -1,59 +1,60 @@
 import React from 'react';
 import {
+  Alert,
+  Button,
+  LayoutAnimation,
+  Linking,
+  NativeModules,
   SafeAreaView,
   View,
-  Text,
-  LayoutAnimation,
-  NativeModules,
 } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 
 // --- Components ---
 import Camera from '../components/camera';
+import SearchBar from '../components/searchBar';
+
+// -- Constants --
+import {springAnimation} from '../constants/animations';
 
 // --- Helper Functions ---
 import ListOfPlaces from '../components/listOfPlaces';
 import findNearbyPlaces from '../helpers/googleAPI/findNearbyPlaces';
-import getPosition from '../helpers/googleAPI/getPosition';
-import getDistanceTo from '../helpers/googleAPI/getDistanceTo';
+import getPosition from '../helpers/getPosition';
+import getDistanceTo from '../helpers/getDistanceTo';
 
 // So that it works on Android
 const {UIManager} = NativeModules;
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
 
-class HomeScreen extends React.Component {
+export default class HomeScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
   state = {
-    foundLocation: false,
     userLocation: {latitude: '', longitude: ''},
-    takenPhoto: {},
     nearbyPlaces: [],
-    showList: false,
-  };
-
-  showList = () => {
-    if (this.state.showList === true) {
-      LayoutAnimation.configureNext(spring);
-      this.setState({showList: false});
-    } else {
-      LayoutAnimation.configureNext(spring);
-      this.setState({showList: true});
-    }
+    showNearbyPlacesList: false,
   };
 
   componentDidMount = async () => {
     try {
-      await this._getCoordinates();
-      if (this.state.foundLocation) {
-        let nearbyPlaces = await findNearbyPlaces();
-        nearbyPlaces = this._addDistanceTo(nearbyPlaces);
-        this.setState({nearbyPlaces});
+      const foundLocation = await this._getCoordinates();
+      if (!foundLocation) {
+        // TODO: What happens when location isn't found?
+        console.log('Could not find location.');
       }
+      this.setState({
+        userLocation: {
+          latitude: foundLocation.latitude,
+          longitude: foundLocation.longitude,
+        },
+      });
     } catch (error) {
-      this.setState({foundLocation: false});
+      // TODO: What happens when location isn't found?
+      console.log('Could not find location.');
+      this.setState({nearbyPlaces: []});
     }
   };
 
@@ -69,33 +70,58 @@ class HomeScreen extends React.Component {
   };
 
   _getCoordinates = async () => {
-    try {
-      const coords = await getPosition();
-      const {latitude, longitude} = coords.coords;
-      this.setState({foundLocation: true, userLocation: {latitude, longitude}});
-    } catch (error) {
-      this.setState({foundLocation: false});
-    }
+    const coords = await getPosition();
+    return coords.coords;
   };
 
   takePhoto = async photo => {
     try {
-      this.setState({takenPhoto: photo});
       const editedPhoto = await ImagePicker.openCropper({
-        path: this.state.takenPhoto.uri,
+        path: photo.uri,
         width: 300,
         height: 100,
         includeBase64: true,
-        cropperToolbarTitle: 'Edit photo',
+        cropperToolbarTitle: 'Make sure the text is in the highlighted area',
       });
-      this._usePhoto(editedPhoto.data);
+      this._getInfoFrom(editedPhoto.data);
     } catch (error) {
       // The error is thrown when a user cancels the edit. Should not throw error
-      this.setState({takenPhoto: {}});
     }
   };
 
-  _usePhoto = base64 => {
+  toggleListOfPlaces = () => {
+    LayoutAnimation.configureNext(springAnimation);
+    this.state.showNearbyPlacesList
+      ? this.setState({showNearbyPlacesList: false})
+      : this.setState({showNearbyPlacesList: true});
+  };
+
+  _getNearbyPlaces = async () => {
+    if (!this.state.userLocation) {
+      Alert.alert(
+        'Oops',
+        'Enable location service to be able to see places near your location.',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'Settings', onPress: () => Linking.openSettings()},
+        ],
+      );
+    }
+    const {latitude, longitude} = this.state.userLocation;
+    if (latitude && longitude) {
+      let nearbyPlaces = await findNearbyPlaces();
+      nearbyPlaces = this._addDistanceTo(nearbyPlaces);
+      this.setState({nearbyPlaces});
+      this.toggleListOfPlaces();
+    }
+  };
+
+  //    -- NAVIGATATION TO RESULTS PAGE --
+  _getInfoFrom = base64 => {
     this.props.navigation.navigate('Results', {
       base64: base64,
       nearbyPlaces: this.state.nearbyPlaces,
@@ -103,33 +129,55 @@ class HomeScreen extends React.Component {
         latitude: this.state.latitude,
         longitude: this.state.longitude,
       },
+      selectedType: 'PHOTO',
     });
   };
 
-  navigateToPlace = placeIndex =>
+  showInfoFor = placeIndex => {
     this.props.navigation.navigate('Results', {
-      selectedPlace: this.state.nearbyPlaces[placeIndex],
-      isNearbyPlace: true,
+      placeInfo: this.state.nearbyPlaces[placeIndex],
+      selectedType: 'NEARBY',
     });
+  };
+
+  //   -- NAVIGATE TO SEARCH RESULTS MODAL --
+  searchInfoFor = place => {
+    this.props.navigation.navigate('SearchOptionsModal', {
+      searchText: place,
+    });
+  };
+
+  //    -- NAVIGATE TO FAVORITES MODAL --
+  showFavorites = place => {
+    this.props.navigation.navigate('FavoritesModal', {
+      searchText: place,
+    });
+  };
 
   render() {
-    const {nearbyPlaces} = this.state;
+    const {nearbyPlaces, showNearbyPlacesList} = this.state;
     return (
       <SafeAreaView style={{flex: 1}}>
-        <View style={{flex: 5, zIndex: 10}}>
-          <Camera takePhoto={photo => this.takePhoto(photo)} />
-        </View>
-
-        {nearbyPlaces.length !== 0 && (
-          <View style={{flex: this.state.showList ? 5 : 1}}>
+        <SearchBar searchFor={searchText => this.searchInfoFor(searchText)} />
+        <Button title="Favorites" onPress={() => this.showFavorites()} />
+        <Camera takePhoto={photo => this.takePhoto(photo)} />
+        {nearbyPlaces.length < 1 ? (
+          <View style={{flex: 0.7, justifyContent: 'flex-end'}}>
+            <Button
+              title="Show nearby places"
+              onPress={() => this._getNearbyPlaces()}
+            />
+          </View>
+        ) : (
+          <View style={{flex: showNearbyPlacesList ? 5 : 1}}>
             <ListOfPlaces
-              places={this.state.nearbyPlaces}
-              navigateToPlace={index => this.navigateToPlace(index)}
-              showList={() => this.showList()}
-              name={
-                this.state.showList
-                  ? 'keyboard-arrow-down'
-                  : 'keyboard-arrow-up'
+              places={nearbyPlaces}
+              navigateToPlace={index => this.showInfoFor(index)}
+              toggleListOfPlaces={() => this.toggleListOfPlaces()}
+              arrowIconDirection={
+                this.state.showNearbyPlacesList
+                  ? 'arrow-drop-down'
+                  : 'arrow-drop-up'
               }
             />
           </View>
@@ -138,47 +186,3 @@ class HomeScreen extends React.Component {
     );
   }
 }
-
-let spring = {
-  duration: 300,
-  create: {
-    type: LayoutAnimation.Types.spring,
-    property: LayoutAnimation.Properties.scaleXY,
-    springDamping: 1,
-  },
-  update: {
-    type: LayoutAnimation.Types.spring,
-    springDamping: 1,
-  },
-};
-const styles = {
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  panel: {
-    flex: 1,
-    backgroundColor: 'white',
-    position: 'relative',
-  },
-  panelHeader: {
-    height: 120,
-    backgroundColor: '#b197fc',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  favoriteIcon: {
-    position: 'absolute',
-    top: -24,
-    right: 24,
-    backgroundColor: '#2b8a3e',
-    width: 48,
-    height: 48,
-    padding: 8,
-    borderRadius: 24,
-    zIndex: 1,
-  },
-};
-export default HomeScreen;

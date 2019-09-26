@@ -1,16 +1,11 @@
 import React from 'react';
 import {View, Image, StyleSheet} from 'react-native';
-import Carousel, {ParallaxImage} from 'react-native-snap-carousel';
-import PropTypes, {object} from 'prop-types';
-import colors from '../constants/colors';
+import Carousel from 'react-native-snap-carousel';
+import PropTypes from 'prop-types';
 
-const images = [
-  'https://images.unsplash.com/photo-1559666126-84f389727b9a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1356&q=80',
-  'https://images.unsplash.com/photo-1557389352-e721da78ad9f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80',
-  'https://images.unsplash.com/photo-1553969420-fb915228af51?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1049&q=80',
-  'https://images.unsplash.com/photo-1550596334-7bb40a71b6bc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80',
-  'https://images.unsplash.com/photo-1550640964-4775934de4af?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80',
-];
+// -- Constants
+import colors from '../constants/colors';
+import {GOOGLE_API_KEY} from '../constants/apiKeys';
 
 const entryBorderRadius = 8;
 
@@ -18,6 +13,17 @@ class Gallery extends React.Component {
   state = {
     height: this.props.height,
     width: this.props.width,
+  };
+
+  _extractUrls = info => {
+    const arrayObjects = info.map(photo => String(photo.photo_reference));
+    const url = 'https://maps.googleapis.com/maps/api/place/photo?';
+    const maxwidth = 'maxwidth=400';
+    const reference = '&photoreference=';
+    const key = '&key=' + GOOGLE_API_KEY;
+    return arrayObjects.map(
+      string => url + maxwidth + reference + string + key,
+    );
   };
 
   _renderItem = ({item, index}) => {
@@ -30,7 +36,7 @@ class Gallery extends React.Component {
               height: this.state.height,
               borderRadius: entryBorderRadius,
             }}
-            source={{uri: item}}
+            source={item}
           />
         </View>
       </View>
@@ -38,13 +44,13 @@ class Gallery extends React.Component {
   };
 
   render() {
+    console.log('PHOTOS: ', this.props.photos);
     return (
       <Carousel
         ref={c => {
           this._carousel = c;
         }}
-        data={images}
-        //data={this.props.photos}
+        data={this.props.photos}
         renderItem={this._renderItem}
         sliderWidth={this.props.width}
         itemWidth={this.props.width * 0.8}
@@ -73,7 +79,7 @@ const styles = StyleSheet.create({
 });
 
 Gallery.proptypes = {
-  //photos: PropTypes.arrayOf(object).isRequired,
+  photos: PropTypes.arrayOf().isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
 };

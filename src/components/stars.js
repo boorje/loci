@@ -9,7 +9,7 @@ const Stars = props => {
       disabled={true}
       maxStars={5}
       starSize={props.starSize}
-      emptyStar={'star-border'}
+      emptyStar={'star'}
       fullStar={'star'}
       halfStar={'star-half'}
       iconSet={'MaterialIcons'}

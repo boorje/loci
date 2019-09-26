@@ -32,7 +32,7 @@ const getReviews = async placeId => {
       const jsonResponse = await response.json();
       resolve(jsonResponse.result.reviews);
     } catch (error) {
-      reject(`Place Details ERROR: ${error}`);
+      reject('Could not find any reviews for the restaurant');
     }
   });
 };
