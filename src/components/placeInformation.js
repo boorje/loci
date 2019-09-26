@@ -7,6 +7,9 @@ import Stars from './stars';
 import colors from '../constants/colors';
 
 const _renderDollarsFrom = price => {
+  if (price === null) {
+    return null;
+  }
   let price_level = '';
   for (let index = 0; index < price; index++) {
     price_level += '$';
@@ -15,6 +18,9 @@ const _renderDollarsFrom = price => {
 };
 
 const _modifyType = type => {
+  if (!type) {
+    return null;
+  }
   return (
     type
       .replace('_', ' ')

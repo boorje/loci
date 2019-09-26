@@ -19,7 +19,7 @@ const RenderPlace = props => {
   const {place} = props;
   const {name, distanceTo, rating, user_ratings_total} = place.item;
   const distanceAway = _classifyDistanceAway(distanceTo);
-  const type = place.item.types[0];
+  const type = place.item.types ? place.item.types[0] : place.item.type;
   const isOpen = place.item.opening_hours
     ? place.item.opening_hours.open_now
       ? 'open'
@@ -66,7 +66,7 @@ const ListOfPlaces = props => {
             navigateToPlace={index => props.navigateToPlace(index)}
           />
         )}
-        keyExtractor={place => place.id}
+        keyExtractor={place => (place.id ? place.id : place.name)}
         ItemSeparatorComponent={_flatListItemSeparator}
       />
     </View>

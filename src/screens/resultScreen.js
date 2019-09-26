@@ -25,6 +25,7 @@ import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
 import getReviews from '../helpers/googleAPI/getReviews';
 
+// TODO: ADD DATA FLOW FOR WHEN SELECTED A FAVORITE PLACE
 class ResultScreen extends React.Component {
   static navigationOptions = {
     header: null,
@@ -69,6 +70,7 @@ class ResultScreen extends React.Component {
   _fetchInfoAboutPlace = async () => {
     let thePlaceInfo;
     const {selectedType} = this.state;
+    console.log(selectedType);
     if (selectedType === 'PHOTO') {
       const base64 = this.props.navigation.getParam('base64', null);
       const userLocation = this.props.navigation.getParam('userLocation', null);
@@ -76,10 +78,12 @@ class ResultScreen extends React.Component {
       const detectedName = await googleOcr(base64);
       const detectedPlace = await searchPlace(detectedName, userLocation);
       thePlaceInfo = await getPlaceDetails(detectedPlace);
-    } else if (selectedType === 'NEARBY' || 'SEARCH') {
+    } else if (selectedType === 'NEARBY' || selectedType === 'SEARCH') {
       thePlaceInfo = this.props.navigation.getParam('placeInfo', null);
       //? Why is await not affecting?
       thePlaceInfo.reviews = await getReviews(thePlaceInfo.place_id);
+    } else if (selectedType === 'FAVORITE') {
+      thePlaceInfo = this.props.navigation.getParam('placeInfo', null);
     } else {
       throw 'Could not load any information. Please try again.';
     }

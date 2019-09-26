@@ -9,6 +9,7 @@ import ResultScreen from './src/screens/resultScreen';
 
 // Modal
 import SearchOptionsModal from './src/screens/searchOptionsModal';
+import FavoritesModal from './src/screens/favoritesModal';
 
 Icon.loadFont();
 
@@ -28,6 +29,9 @@ const RootStack = createStackNavigator(
     },
     SearchOptionsModal: {
       screen: SearchOptionsModal,
+    },
+    FavoritesModal: {
+      screen: FavoritesModal,
     },
   },
   {

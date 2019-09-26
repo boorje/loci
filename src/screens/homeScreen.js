@@ -1,7 +1,12 @@
 import React from 'react';
-import {SafeAreaView, View, LayoutAnimation, NativeModules} from 'react-native';
+import {
+  Button,
+  SafeAreaView,
+  View,
+  LayoutAnimation,
+  NativeModules,
+} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
-import AsyncStorage from '@react-native-community/async-storage';
 
 // --- Components ---
 import Camera from '../components/camera';
@@ -124,11 +129,18 @@ export default class HomeScreen extends React.Component {
   };
   //    -- NAVIGATE TO RESULTS PAGE END --
 
+  showFavorites = place => {
+    this.props.navigation.navigate('FavoritesModal', {
+      searchText: place,
+    });
+  };
+
   render() {
     const {nearbyPlaces} = this.state;
     return (
       <SafeAreaView style={{flex: 1}}>
         <SearchBar searchFor={searchText => this.searchInfoFor(searchText)} />
+        <Button title="Favorites" onPress={() => this.showFavorites()} />
         <View style={{flex: 5, zIndex: 10}}>
           <Camera takePhoto={photo => this.takePhoto(photo)} />
         </View>
