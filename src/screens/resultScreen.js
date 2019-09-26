@@ -2,7 +2,6 @@ import React from 'react';
 import {
   ActionSheetIOS,
   Alert,
-  Button,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -10,12 +9,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 // -- Components --
 import PlaceInformation from '../components/placeInformation';
 import Slideshow from '../components/slideshow';
 import Review from '../components/review';
+import Header from '../components/header';
 
 // -- Constants --
 import colors from '../constants/colors';
@@ -27,10 +26,15 @@ import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
 import getReviews from '../helpers/googleAPI/getReviews';
 
 class ResultScreen extends React.Component {
+  static navigationOptions = {
+    header: null,
+  };
+
   state = {
+    loading: true,
     apiError: '',
     showPhotos: true,
-    height: 0, // TODO: More descriptive
+    height: 0,
     selectedType: this.props.navigation.getParam('selectedType', null),
     placeInfo: {
       name: '',
@@ -50,17 +54,16 @@ class ResultScreen extends React.Component {
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
       // Google API - name not found -> present nearby locations or retake photo. Add description on how to take proper photo
-
       this.setState({apiError: error});
       Alert.alert(error, 'Please try again.', [
         {text: 'Search again', onPress: () => this.props.navigation.goBack()},
         {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
+          text: 'Nearby places',
+          onPress: () => console.log('Show nearby places'),
         },
       ]);
     }
+    this.setState({loading: false});
   };
 
   _fetchInfoAboutPlace = async () => {
@@ -120,30 +123,12 @@ class ResultScreen extends React.Component {
     });
   };
 
-  _sharePlace = () => {
-    ActionSheetIOS.showShareActionSheetWithOptions(
-      {message: 'Check out this awesome restaurant'},
-      () => console.log('share failed'),
-      () => console.log('share succeeded'),
-    );
-  };
-
   render() {
-    const {height, showPhotos, placeInfo} = this.state;
+    const {loading, height, showPhotos, placeInfo} = this.state;
     return (
       <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         <View>
-          <Icon.Button
-            backgroundColor={colors.palegold}
-            borderRadius={50}
-            underlayColor={colors.palegold}
-            size={20}
-            name="share"
-            color={colors.paper}
-            type="Feather"
-            onPress={() => this._sharePlace()}>
-            Share
-          </Icon.Button>
+          {!loading && <Header placeInfo={placeInfo} />}
           <PlaceInformation placeInfo={this.state.placeInfo} />
           <View style={styles.menu}>
             <TouchableOpacity

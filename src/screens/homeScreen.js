@@ -1,6 +1,7 @@
 import React from 'react';
 import {SafeAreaView, View, LayoutAnimation, NativeModules} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
+import AsyncStorage from '@react-native-community/async-storage';
 
 // --- Components ---
 import Camera from '../components/camera';
