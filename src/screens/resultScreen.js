@@ -8,6 +8,7 @@ import Gallery from '../components/gallery';
 import TopBar from '../components/topBar';
 import PlaceInformation from '../components/placeInformation';
 import Section from '../components/section';
+import LinearGradient from 'react-native-linear-gradient';
 
 // -- Constants --
 import colors from '../constants/colors';
@@ -127,16 +128,22 @@ class ResultScreen extends React.Component {
       <View style={{flex: 1}}>
         {/* PLACE INFORMATION  */}
         <View style={styles.topContainer}>
-          <TopBar
-            closeScreen={() => this.closeScreen()}
-            placeInfo={placeInfo}
-          />
-          <PlaceInformation placeInfo={placeInfo} width={width} />
+          <LinearGradient
+            colors={[colors.surf, 'white']}
+            style={styles.topContainer}>
+            <View style={{flex: 1, justifyContent: 'space-around'}}>
+              <TopBar
+                closeScreen={() => this.closeScreen()}
+                placeInfo={placeInfo}
+              />
+              <PlaceInformation placeInfo={placeInfo} width={width} />
+            </View>
+          </LinearGradient>
           <Stars style={styles.stars} rating={placeInfo.rating} starSize={65} />
         </View>
 
+        {/* IMAGES */}
         <View style={styles.bottomContainer}>
-          {/* IMAGES */}
           <Section title="Images">
             <View style={styles.gallery}>
               <Gallery
@@ -165,35 +172,11 @@ export default ResultScreen;
 
 const styles = StyleSheet.create({
   topContainer: {
-    backgroundColor: colors.surf,
-    flex: 3,
-    justifyContent: 'space-evenly',
+    flex: 6,
+    justifyContent: 'center',
   },
   bottomContainer: {
-    flex: 6,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  name: {
-    fontFamily: fonts.avenirNext,
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 30,
-  },
-  type: {
-    fontFamily: fonts.avenirNext,
-    color: 'white',
-    fontSize: 20,
-  },
-  images: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    marginTop: '10%',
-  },
-  reviews: {
-    flex: 1,
-    justifyContent: 'flex-start',
+    flex: 10,
     alignItems: 'center',
   },
   gallery: {
@@ -202,12 +185,6 @@ const styles = StyleSheet.create({
     width: width * 0.88,
     alignItems: 'center',
     height: height * 0.25,
-  },
-  line: {
-    flex: 1,
-    borderBottomColor: colors.charcoal,
-    borderBottomWidth: 0.5,
-    marginLeft: '3%',
   },
   stars: {
     bottom: '-7%',
