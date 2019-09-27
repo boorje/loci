@@ -49,7 +49,7 @@ const margin = 10;
 const size = 25;
 const TopBar = props => {
   return (
-    <View style={{marginTop: '10%', marginRight: '3%', marginLeft: '4%'}}>
+    <View style={{ marginRight: '3%', marginLeft: '4%'}}>
       <View
         style={{
           flexDirection: 'row',

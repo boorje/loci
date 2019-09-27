@@ -36,7 +36,7 @@ class Gallery extends React.Component {
               height: this.state.height,
               borderRadius: entryBorderRadius,
             }}
-            source={item}
+            source={{uri: item}}
           />
         </View>
       </View>

@@ -16,7 +16,7 @@ Icon.loadFont();
 const MainStack = createStackNavigator(
   {
     Home: {
-      screen: HomeScreen,
+      screen: ResultScreen,
     },
     Results: {
       screen: ResultScreen,

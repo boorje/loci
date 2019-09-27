@@ -31,7 +31,11 @@ const PlaceInformation = props => {
   const {name, type, price_level, user_ratings_total} = props.placeInfo;
   return (
     <View
-      style={{width: props.width * 0.7, marginBottom: '10%', marginLeft: '7%'}}>
+      style={{
+        width: props.width * 0.7,
+        marginLeft: '7%',
+        justifyContent: 'flex-start',
+      }}>
       <Text style={styles.name}>{name}</Text>
       <Text style={styles.type}>
         {_modifyType(type)} {type && price_level > 0 ? '-' : ''}{' '}
@@ -56,16 +60,15 @@ PlaceInformation.proptypes = {
 
 const styles = StyleSheet.create({
   name: {
-    marginTop: 50,
     fontFamily: 'Avenir Next',
-    color: colors.charcoal,
+    color: 'white',
     fontWeight: 'bold',
     fontSize: 30,
   },
   type: {
-    marginTop: 10,
+    marginTop: 5,
     fontFamily: 'Avenir Next',
-    color: colors.charcoal,
+    color: 'white',
     fontSize: 18,
   },
   review: {
@@ -82,7 +85,5 @@ const styles = StyleSheet.create({
   },
   stars: {
     marginTop: 20,
-    marginLeft: 70,
-    marginRight: 70,
   },
 });

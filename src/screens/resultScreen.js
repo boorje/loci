@@ -93,6 +93,7 @@ class ResultScreen extends React.Component {
   _updateStateWith = async placeInfo => {
     const {
       name,
+      type,
       types,
       rating,
       user_ratings_total,
@@ -104,7 +105,7 @@ class ResultScreen extends React.Component {
     this.setState({
       placeInfo: {
         name,
-        type: types ? types[0] : null,
+        type: types ? types[0] : type,
         rating: rating ? rating : null,
         user_ratings_total: user_ratings_total ? user_ratings_total : null,
         price_level: price_level ? price_level : null,
@@ -201,17 +202,6 @@ const styles = StyleSheet.create({
     width: width * 0.88,
     alignItems: 'center',
     height: height * 0.25,
-  },
-  headlineView: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: '7%',
-    marginRight: '7%',
-  },
-  headlineText: {
-    color: colors.charcoal,
-    fontFamily: fonts.avenirNext,
-    fontSize: 20,
   },
   line: {
     flex: 1,
