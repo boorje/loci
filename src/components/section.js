@@ -33,13 +33,13 @@ const styles = StyleSheet.create({
   headlineView: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: '7%',
+    marginLeft: '3%',
     marginRight: '7%',
   },
   headlineText: {
     color: colors.charcoal,
     fontFamily: fonts.avenirNext,
-    fontSize: 20,
+    fontSize: 18,
   },
   line: {
     flex: 1,
