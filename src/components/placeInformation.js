@@ -34,7 +34,8 @@ const PlaceInformation = props => {
       style={{
         width: props.width * 0.7,
         marginLeft: '7%',
-        justifyContent: 'flex-start',
+        marginBottom: '10%',
+        justifyContent: 'center',
       }}>
       <Text style={styles.name}>{name}</Text>
       <Text style={styles.type}>
@@ -64,12 +65,17 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 30,
+    textShadowColor: colors.charcoal,
+    textShadowRadius: 5,
   },
   type: {
     marginTop: 5,
     fontFamily: 'Avenir Next',
     color: 'white',
+    fontWeight: 'bold',
     fontSize: 18,
+    textShadowColor: colors.charcoal,
+    textShadowRadius: 5,
   },
   review: {
     marginTop: 5,

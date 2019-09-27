@@ -11,7 +11,7 @@ import ResultScreen from './src/screens/resultScreen';
 import SearchOptionsModal from './src/screens/searchOptionsModal';
 import FavoritesModal from './src/screens/favoritesModal';
 
-Icon.loadFont();
+//Icon.loadFont();
 
 const MainStack = createStackNavigator(
   {
