@@ -1,9 +1,15 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, Button, Image} from 'react-native';
 import PropTypes from 'prop-types';
 import {RNCamera} from 'react-native-camera';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import CameraMenu from '../components/cameraMenu';
 import colors from '../constants/colors';
+import SearchBar from './searchBar';
+import ListOfPlaces from './listOfPlaces';
+import mockData from '../constants/mockData';
+
+const url =
+  'https://images.unsplash.com/photo-1560557102-b14bfc6b1988?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=632&q=80';
 
 export default class AppCamera extends React.Component {
   //? Catch error here?
@@ -22,61 +28,28 @@ export default class AppCamera extends React.Component {
 
   render() {
     return (
-      <View style={styles.cameraView}>
-        <RNCamera
+      <View style={styles.container}>
+        {/* <RNCamera
           style={styles.camera}
           ref={ref => {
             this.camera = ref;
           }}
           captureAudio={false}
-        />
-        <View style={styles.cameraButton}>
-          <View style={styles.line} />
-          <Icon.Button
-            backgroundColor={colors.palegold}
-            borderRadius={50}
-            underlayColor={colors.palegold}
-            padding={3}
-            marginLeft={10}
-            marginTop={10}
-            marginBottom={10}
-            size={30}
-            name="camera"
-            color={colors.paper}
-            type="Feather"
-            onPress={() => this._takePhoto()}
-            disabled //! DISABLED
-          />
-          <View style={styles.line} />
-        </View>
+        /> */}
+
+        <Image style={styles.camera} source={{uri: url}} />
+        {this.props.children}
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  cameraView: {
-    backgroundColor: colors.paper,
-    flex: 5,
-    zIndex: 10,
+  container: {
+    flex: 1,
   },
   camera: {
     flex: 1,
-    alignItems: 'center',
-  },
-  cameraButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 30,
-    position: 'absolute',
-    bottom: -29,
-  },
-  line: {
-    flex: 1,
-    borderBottomColor: colors.palegold,
-    borderBottomWidth: 2,
-    borderTopColor: colors.palegold,
-    borderTopWidth: 2,
   },
 });
 

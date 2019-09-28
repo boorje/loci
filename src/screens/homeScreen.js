@@ -9,10 +9,12 @@ import {
   View,
 } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
+import AsyncStorage from '@react-native-community/async-storage';
 
 // --- Components ---
 import Camera from '../components/camera';
 import SearchBar from '../components/searchBar';
+import CameraMenu from '../components/cameraMenu';
 
 // -- Constants --
 import {springAnimation} from '../constants/animations';
@@ -28,14 +30,21 @@ const {UIManager} = NativeModules;
 UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
 
+//! DELETE
+import {singleObj, arrayObj} from '../constants/mockData';
+
+import {array} from 'prop-types';
+
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
   state = {
     userLocation: {latitude: '', longitude: ''},
-    nearbyPlaces: [],
+    nearbyPlaces: arrayObj, // ! MOCK DATA
+    savedPlaces: arrayObj, // ! MOCK DATA
     showNearbyPlacesList: false,
+    showFavoritePlacesList: false,
   };
 
   componentDidMount = async () => {
@@ -56,6 +65,32 @@ export default class HomeScreen extends React.Component {
       console.log('Could not find location.');
       this.setState({nearbyPlaces: []});
     }
+  };
+
+  _loadFavorites = async () => {
+    try {
+      // AsyncStorage.clear();
+      const saved = await AsyncStorage.getItem('FAVORITES');
+      if (saved === null) {
+        throw {errorMsg: 'You have not saved any places yet.'};
+      }
+      const savedPlaces = JSON.parse(saved);
+      this.setState({savedPlaces: savedPlaces});
+    } catch (error) {
+      Alert.alert(
+        'Oops',
+        error.errorMsg
+          ? error.errorMsg
+          : "Something wen't wrong. Please try again",
+      );
+    }
+  };
+
+  showInfoFor = placeIndex => {
+    this.props.navigation.navigate('Results', {
+      placeInfo: this.state.savedPlaces[placeIndex],
+      selectedType: 'FAVORITE',
+    });
   };
 
   _addDistanceTo = places => {
@@ -89,13 +124,6 @@ export default class HomeScreen extends React.Component {
     }
   };
 
-  toggleListOfPlaces = () => {
-    LayoutAnimation.configureNext(springAnimation);
-    this.state.showNearbyPlacesList
-      ? this.setState({showNearbyPlacesList: false})
-      : this.setState({showNearbyPlacesList: true});
-  };
-
   _getNearbyPlaces = async () => {
     if (!this.state.userLocation) {
       Alert.alert(
@@ -116,7 +144,7 @@ export default class HomeScreen extends React.Component {
       let nearbyPlaces = await findNearbyPlaces();
       nearbyPlaces = this._addDistanceTo(nearbyPlaces);
       this.setState({nearbyPlaces});
-      this.toggleListOfPlaces();
+      this.showNearbyPlaces();
     }
   };
 
@@ -147,43 +175,53 @@ export default class HomeScreen extends React.Component {
     });
   };
 
-  //    -- NAVIGATE TO FAVORITES MODAL --
-  showFavorites = place => {
-    this.props.navigation.navigate('FavoritesModal', {
-      searchText: place,
-    });
+  showFavorites = () => {
+    LayoutAnimation.configureNext(springAnimation);
+    this.state.showFavoritePlacesList
+      ? this.setState({showFavoritePlacesList: false})
+      : this.setState({showFavoritePlacesList: true});
+  };
+
+  showNearbyPlaces = () => {
+    LayoutAnimation.configureNext(springAnimation);
+    this.state.showNearbyPlacesList
+      ? this.setState({showNearbyPlacesList: false})
+      : this.setState({showNearbyPlacesList: true});
   };
 
   render() {
-    const {nearbyPlaces, showNearbyPlacesList} = this.state;
+    const {
+      nearbyPlaces,
+      savedPlaces,
+      showNearbyPlacesList,
+      showFavoritePlacesList,
+    } = this.state;
     return (
-      <SafeAreaView style={{flex: 1}}>
-        <SearchBar searchFor={searchText => this.searchInfoFor(searchText)} />
-        <Button title="Favorites" onPress={() => this.showFavorites()} />
-        <Camera takePhoto={photo => this.takePhoto(photo)} />
-        {nearbyPlaces.length < 1 ? (
-          <View style={{flex: 0.7, justifyContent: 'flex-end'}}>
-            <Button
-              title="Show nearby places"
-              onPress={() => this._getNearbyPlaces()}
-              disabled //! Currently disabled
-            />
-          </View>
-        ) : (
-          <View style={{flex: showNearbyPlacesList ? 5 : 1}}>
-            <ListOfPlaces
-              places={nearbyPlaces}
-              navigateToPlace={index => this.showInfoFor(index)}
-              toggleListOfPlaces={() => this.toggleListOfPlaces()}
-              arrowIconDirection={
-                this.state.showNearbyPlacesList
-                  ? 'arrow-drop-down'
-                  : 'arrow-drop-up'
-              }
-            />
-          </View>
+      <View style={{flex: 1}}>
+        <Camera style={{flex: 1}} takePhoto={photo => this.takePhoto(photo)}>
+          <SearchBar />
+          <CameraMenu
+            bookmarkPressed={showFavoritePlacesList}
+            locationPressed={showNearbyPlacesList}
+            showNearby={() => this.showNearbyPlaces()}
+            showFavorites={() => this.showFavorites()}
+          />
+        </Camera>
+        {showNearbyPlacesList && (
+          <ListOfPlaces
+            style={{flex: 1}}
+            places={nearbyPlaces}
+            headline={'Places near you'}
+          />
         )}
-      </SafeAreaView>
+        {showFavoritePlacesList && (
+          <ListOfPlaces
+            style={{flex: 1}}
+            places={savedPlaces}
+            headline={'Bookmarked places'}
+          />
+        )}
+      </View>
     );
   }
 }

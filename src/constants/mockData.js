@@ -1,4 +1,4 @@
-export default {
+export const singleObj = {
   name: 'La Locanda del Gatto Rosso',
   photos: [
     'https://images.unsplash.com/photo-1520440229-6469a149ac59?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=675&q=80',
@@ -26,3 +26,20 @@ export default {
   type: 'restaurant',
   user_ratings_total: 705,
 };
+
+export const arrayObj = [
+  {
+    name: 'La Locanda del Gatto Rosso',
+    price_level: 2,
+    rating: 3.5,
+    type: 'restaurant',
+    user_ratings_total: 705,
+  },
+  {
+    name: 'Upcyle Café',
+    price_level: 2,
+    rating: 3.5,
+    type: 'restaurant',
+    user_ratings_total: 705,
+  },
+];
