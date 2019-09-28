@@ -1,10 +1,17 @@
 import React from 'react';
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Alert,
+} from 'react-native';
 import PropTypes from 'prop-types';
 import Stars from '../components/stars';
 import colors from '../constants/colors';
 import fonts from '../constants/fonts';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const _classifyDistanceAway = distance => {
   if (distance < 500) {
@@ -28,14 +35,12 @@ const RenderPlace = props => {
     : null;
   return (
     <TouchableOpacity
-      style={styles.list}
+      style={styles.listItem}
       onPress={() => props.navigateToPlace(place.index)}>
-      <View>
-        <View style={{flexDirection: 'row'}}>
-          <Text style={{fontFamily: fonts.avenirNext}}>{name}</Text>
-        </View>
-        <Stars style={styles.stars} rating={rating} starSize={17} />
+      <View style={{flexDirection: 'row'}}>
+        <Text style={{fontFamily: fonts.avenirNext}}>{name}</Text>
       </View>
+      <Stars style={styles.stars} rating={rating} starSize={17} />
     </TouchableOpacity>
   );
 };
@@ -44,21 +49,16 @@ const _flatListItemSeparator = () => <View style={styles.separator} />;
 
 const ListOfPlaces = props => {
   return (
-    <View style={{flex: 1}}>
-      {props.arrowIconDirection && (
-        <View style={styles.headView}>
-          <Text style={styles.headLine}>Places nearby</Text>
-          <Icon.Button
-            backgroundColor="transparent"
-            underlayColor="transparent"
-            marginRight={10}
-            size={50}
-            name={props.arrowIconDirection}
-            color={colors.charcoal}
-            onPress={() => props.toggleListOfPlaces()}
-          />
-        </View>
-      )}
+    <View style={styles.container}>
+      <Text
+        style={{
+          fontFamily: fonts.avenirNext,
+          fontSize: 18,
+          marginBottom: '3%',
+          fontWeight: 'bold',
+        }}>
+        {props.headline}
+      </Text>
       <FlatList
         data={props.places}
         renderItem={place => (
@@ -77,30 +77,19 @@ const ListOfPlaces = props => {
 export default ListOfPlaces;
 
 const styles = StyleSheet.create({
-  headView: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  list: {
+  container: {
     flex: 1,
-    marginBottom: 10,
+    marginTop: '10%',
     marginLeft: '3%',
   },
-  headLine: {
-    marginLeft: '3%',
-    color: colors.charcoal,
-    fontSize: 20,
-    fontWeight: 'bold',
-    fontFamily: fonts.avenirNext,
+  listItem: {
+    flex: 1,
+    marginBottom: '1%',
   },
   separator: {
     height: 1,
     width: '97%',
     marginLeft: '3%',
-    marginRight: '0%',
     marginBottom: 3,
     marginTop: 3,
     backgroundColor: colors.silk,
@@ -113,4 +102,5 @@ ListOfPlaces.proptypes = {
   navigateToPlace: PropTypes.func.isRequired,
   toggleListOfPlaces: PropTypes.func, //TODO: isRequired ?
   arrowIconDirection: PropTypes.string, //TODO: isRequired ?
+  headline: PropTypes.string.isRequired,
 };

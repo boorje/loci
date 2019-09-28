@@ -14,7 +14,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import colors from '../constants/colors';
 import fonts from '../constants/fonts';
 // ! MOCKDATA
-import mockData from '../constants/mockData';
+import {singleObj} from '../constants/mockData';
 
 // -- Helper Functions --
 import googleOcr from '../helpers/googleAPI/googleOcr';
@@ -52,7 +52,7 @@ class ResultScreen extends React.Component {
     try {
       // const placeInfo = await this._fetchInfoAboutPlace();
       // ! MOCKDATA
-      const placeInfo = mockData;
+      const placeInfo = singleObj;
       await this._updateStateWith(placeInfo);
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
