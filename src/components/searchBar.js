@@ -16,6 +16,7 @@ import ListOfPlaces from '../components/listOfPlaces';
 // -- constants --
 import colors from '../constants/colors';
 import {springAnimation} from '../constants/animations';
+import fonts from '../constants/fonts';
 
 // -- Helpers --
 import searchTextPlaces from '../helpers/googleAPI/searchTextPlaces';
@@ -102,13 +103,16 @@ export default class SearchBar extends React.Component {
             </View>
             {this.state.showResults && (
               <View style={styles.list}>
+                <Text style={styles.headlineText}>
+                  {this.state.loading
+                    ? 'Searching...'
+                    : this.state.foundPlaces === null
+                    ? 'No results found'
+                    : 'Search results'}
+                </Text>
                 <ListOfPlaces
                   textColor={'white'}
-                  headlineColor={'white'}
                   places={this.state.loading ? [] : this.state.foundPlaces}
-                  headline={
-                    this.state.loading ? 'Searching...' : 'Search results'
-                  }
                   navigateToPlace={index => this.navToResultForSearch(index)}
                 />
               </View>
@@ -132,7 +136,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'flex-start',
     marginTop: '5%',
-    paddingBottom: '15%',
+    //paddingBottom: '15%',
     paddingTop: '10%',
     paddingRight: '10%',
     paddingLeft: '10%',
@@ -144,6 +148,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: 'rgba(52, 52, 52, 1)',
     borderRadius: 50,
+  },
+  headlineText: {
+    fontFamily: fonts.avenirNext,
+    fontSize: 18,
+    marginLeft: '3%',
+    marginTop: '5%',
+    fontWeight: 'bold',
+    color: 'white',
   },
   searchIcon: {
     borderRadius: 50,
@@ -159,7 +171,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(52, 52, 52, 0.8)',
     borderRadius: 25,
     width: '100%',
-    paddingBottom: '10%',
-    top: 5,
   },
 });

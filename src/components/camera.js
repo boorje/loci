@@ -26,10 +26,10 @@ export default class AppCamera extends React.Component {
         {!locationPressed && (
           <View style={styles.icon}>
             <Icon
-              style={{padding: 5}}
+              style={{padding: 10}}
               name={'bookmark'}
               color={colors.paper}
-              size={35}
+              size={30}
               onPress={() => {
                 this.props.showBookmarkedList();
               }}
@@ -56,10 +56,10 @@ export default class AppCamera extends React.Component {
         {!bookmarkPressed && (
           <View style={styles.icon}>
             <Icon
-              style={{padding: 5}}
+              style={{padding: 10}}
               name="near-me"
               color={colors.paper}
-              size={35}
+              size={30}
               onPress={() => {
                 this.props.showNearbyPlacesList();
               }}

@@ -50,22 +50,9 @@ const RenderPlace = props => {
 const _flatListItemSeparator = () => <View style={styles.separator} />;
 
 const ListOfPlaces = props => {
-  const headlineColor = props.headlineColor
-    ? props.headlineColor
-    : colors.charcoal;
   const textColor = props.textColor ? props.textColor : colors.charcoal;
   return (
     <View style={styles.container}>
-      <Text
-        style={{
-          fontFamily: fonts.avenirNext,
-          fontSize: 18,
-          marginBottom: '3%',
-          fontWeight: 'bold',
-          color: headlineColor,
-        }}>
-        {props.headline}
-      </Text>
       <FlatList
         data={props.places}
         renderItem={place => (
@@ -110,5 +97,4 @@ ListOfPlaces.proptypes = {
   navigateToPlace: PropTypes.func.isRequired,
   toggleListOfPlaces: PropTypes.func, //TODO: isRequired ?
   arrowIconDirection: PropTypes.string, //TODO: isRequired ?
-  headline: PropTypes.string.isRequired,
 };

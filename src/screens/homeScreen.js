@@ -1,5 +1,12 @@
 import React from 'react';
-import {Alert, LayoutAnimation, NativeModules, View} from 'react-native';
+import {
+  Alert,
+  LayoutAnimation,
+  NativeModules,
+  View,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -9,6 +16,7 @@ import SearchBar from '../components/searchBar';
 
 // -- Constants --
 import {springAnimation} from '../constants/animations';
+import fonts from '../constants/fonts';
 
 // --- Helper Functions ---
 import ListOfPlaces from '../components/listOfPlaces';
@@ -202,20 +210,39 @@ export default class HomeScreen extends React.Component {
           />
         </Camera>
         {showNearbyPlacesList && (
-          <ListOfPlaces
-            places={nearbyPlaces}
-            headline={'Places near you'}
-            navigateToPlace={index => this.navToResultForNearby(index)}
-          />
+          <View style={{flex: 1}}>
+            <Text style={styles.headlineText}>
+              {this.state.nearbyPlaces === null
+                ? 'No places nearby...'
+                : 'Places near you'}
+            </Text>
+            <ListOfPlaces
+              places={nearbyPlaces}
+              navigateToPlace={index => this.navToResultForNearby(index)}
+            />
+          </View>
         )}
         {showBookmarkedPlacesList && (
-          <ListOfPlaces
-            places={bookmarkedPlaces}
-            headline={'Bookmarked places'}
-            navigateToPlace={index => this.navToResultForBookmarked(index)}
-          />
+          <View style={{flex: 1}}>
+            <Text style={styles.headlineText}>Bookmarked places</Text>
+            <ListOfPlaces
+              places={bookmarkedPlaces}
+              navigateToPlace={index => this.navToResultForBookmarked(index)}
+            />
+          </View>
         )}
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  headlineText: {
+    fontFamily: fonts.avenirNext,
+    fontSize: 18,
+    marginLeft: '3%',
+    marginTop: '10%',
+    fontWeight: 'bold',
+    color: 'black',
+  },
+});
