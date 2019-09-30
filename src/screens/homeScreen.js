@@ -199,7 +199,7 @@ export default class HomeScreen extends React.Component {
     return (
       <View style={{flex: 1}}>
         <Camera style={{flex: 1}} takePhoto={photo => this.takePhoto(photo)}>
-          <SearchBar />
+          <SearchBar places={nearbyPlaces} />
           <CameraMenu
             bookmarkPressed={showFavoritePlacesList}
             locationPressed={showNearbyPlacesList}
@@ -208,18 +208,10 @@ export default class HomeScreen extends React.Component {
           />
         </Camera>
         {showNearbyPlacesList && (
-          <ListOfPlaces
-            style={{flex: 1}}
-            places={nearbyPlaces}
-            headline={'Places near you'}
-          />
+          <ListOfPlaces places={nearbyPlaces} headline={'Places near you'} />
         )}
         {showFavoritePlacesList && (
-          <ListOfPlaces
-            style={{flex: 1}}
-            places={savedPlaces}
-            headline={'Bookmarked places'}
-          />
+          <ListOfPlaces places={savedPlaces} headline={'Bookmarked places'} />
         )}
       </View>
     );
