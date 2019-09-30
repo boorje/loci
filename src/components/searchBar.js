@@ -129,7 +129,7 @@ export default class SearchBar extends React.Component {
                     : 'Search results'}
                 </Text>
                 <ListOfPlaces
-                  showBookmarks={false}
+                  showBookmarks={true}
                   textColor={'white'}
                   places={this.state.loading ? [] : this.state.foundPlaces}
                   navigateToPlace={index => this.navToResultForSearch(index)}

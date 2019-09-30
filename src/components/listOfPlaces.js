@@ -46,7 +46,7 @@ const RenderPlace = props => {
           </Text>
           <Stars style={styles.stars} rating={rating} starSize={17} />
         </View>
-        {props.showBookmarks && (
+        {props.showBookmark && (
           <Icon
             style={{padding: 10}}
             name={'bookmark'}
@@ -71,7 +71,7 @@ const ListOfPlaces = props => {
         renderItem={place => (
           <RenderPlace
             textColor={textColor}
-            showBookmarks={props.showBookmarks}
+            showBookmark={props.showBookmark} // TODO: Make bookmark appear on items which have been marked on beforehand. Not every single one.
             place={place}
             navigateToPlace={index => props.navigateToPlace(index)}
           />

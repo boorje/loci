@@ -238,8 +238,8 @@ export default class HomeScreen extends React.Component {
                 : 'Places near you'}
             </Text>
             <ListOfPlaces
-              showBookmarks={false}
               places={nearbyPlaces}
+              showBookmark={false}
               navigateToPlace={index => this.navToResultForNearby(index)}
             />
           </View>
@@ -248,7 +248,7 @@ export default class HomeScreen extends React.Component {
           <View style={{flex: 1, zIndex: -1}}>
             <Text style={styles.headlineText}>Bookmarked places</Text>
             <ListOfPlaces
-              showBookmarks={true}
+              showBookmark={true}
               places={bookmarkedPlaces}
               navigateToPlace={index => this.navToResultForBookmarked(index)}
             />
