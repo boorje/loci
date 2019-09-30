@@ -1,18 +1,11 @@
 import React from 'react';
-import {
-  Alert,
-  LayoutAnimation,
-  Linking,
-  NativeModules,
-  View,
-} from 'react-native';
+import {Alert, LayoutAnimation, NativeModules, View} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import AsyncStorage from '@react-native-community/async-storage';
 
 // --- Components ---
 import Camera from '../components/camera';
 import SearchBar from '../components/searchBar';
-import CameraMenu from '../components/cameraMenu';
 
 // -- Constants --
 import {springAnimation} from '../constants/animations';
@@ -23,13 +16,10 @@ import findNearbyPlaces from '../helpers/googleAPI/findNearbyPlaces';
 import getPosition from '../helpers/getPosition';
 import getDistanceTo from '../helpers/getDistanceTo';
 
-// So that it works on Android
-const {UIManager} = NativeModules;
-UIManager.setLayoutAnimationEnabledExperimental &&
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-
-//! MOCK DATA
-import {singleObj, arrayObj} from '../constants/mockData';
+// So that it works on Android //? WHAT WORKS?!?
+// const {UIManager} = NativeModules;
+// UIManager.setLayoutAnimationEnabledExperimental &&
+//   UIManager.setLayoutAnimationEnabledExperimental(true);
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
@@ -199,16 +189,16 @@ export default class HomeScreen extends React.Component {
     } = this.state;
     return (
       <View style={{flex: 1}}>
-        <Camera style={{flex: 1}} takePhoto={photo => this.takePhoto(photo)}>
+        <Camera
+          style={{flex: 1}}
+          takePhoto={photo => this.takePhoto(photo)}
+          bookmarkPressed={showBookmarkedPlacesList}
+          locationPressed={showNearbyPlacesList}
+          showNearbyPlacesList={() => this.showNearbyPlacesList()}
+          showBookmarkedList={() => this.showBookmarkedList()}>
           <SearchBar
             places={nearbyPlaces}
             navigateToPlace={placeInfo => this.navToResultForSearch(placeInfo)}
-          />
-          <CameraMenu
-            bookmarkPressed={showBookmarkedPlacesList}
-            locationPressed={showNearbyPlacesList}
-            showNearbyPlacesList={() => this.showNearbyPlacesList()}
-            showBookmarkedList={() => this.showBookmarkedList()}
           />
         </Camera>
         {showNearbyPlacesList && (
