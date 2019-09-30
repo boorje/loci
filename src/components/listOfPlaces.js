@@ -12,6 +12,7 @@ import Stars from '../components/stars';
 import colors from '../constants/colors';
 import fonts from '../constants/fonts';
 import AsyncStorage from '@react-native-community/async-storage';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const _classifyDistanceAway = distance => {
   if (distance < 500) {
@@ -33,16 +34,28 @@ const RenderPlace = props => {
       ? 'open'
       : 'closed'
     : null;
+
   return (
     <TouchableOpacity
       style={styles.listItem}
       onPress={() => props.navigateToPlace(place.index)}>
-      <View style={{flexDirection: 'row'}}>
-        <Text style={{color: props.textColor, fontFamily: fonts.avenirNext}}>
-          {name}
-        </Text>
+      <View style={styles.itemContainer}>
+        <View>
+          <Text style={{color: props.textColor, fontFamily: fonts.avenirNext}}>
+            {name}
+          </Text>
+          <Stars style={styles.stars} rating={rating} starSize={17} />
+        </View>
+        {props.showBookmarks && (
+          <Icon
+            style={{padding: 10}}
+            name={'bookmark'}
+            color={'red'}
+            size={30}
+            onPress={() => {}}
+          />
+        )}
       </View>
-      <Stars style={styles.stars} rating={rating} starSize={17} />
     </TouchableOpacity>
   );
 };
@@ -58,6 +71,7 @@ const ListOfPlaces = props => {
         renderItem={place => (
           <RenderPlace
             textColor={textColor}
+            showBookmarks={props.showBookmarks}
             place={place}
             navigateToPlace={index => props.navigateToPlace(index)}
           />
@@ -76,6 +90,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: '3%',
     marginLeft: '3%',
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   listItem: {
     flex: 1,
