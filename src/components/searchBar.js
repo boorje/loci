@@ -60,6 +60,15 @@ export default class SearchBar extends React.Component {
     this._closeSearchBar();
   };
 
+  _clearSearch = () => {
+    this.setState({
+      searchText: '',
+      foundPlaces: [],
+      showResults: false,
+    });
+    this.searchField.focus();
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -96,8 +105,20 @@ export default class SearchBar extends React.Component {
                 autoCorrect={false}
                 autoFocus={true}
                 returnKeyType="search"
+                ref={input => {
+                  this.searchField = input;
+                }}
                 onSubmitEditing={() => {
                   this._showSearchResults();
+                }}
+              />
+              <Icon
+                style={{padding: 5}}
+                name="close"
+                color={colors.paper}
+                size={25}
+                onPress={() => {
+                  this._clearSearch();
                 }}
               />
             </View>
@@ -136,7 +157,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'flex-start',
     marginTop: '5%',
-    //paddingBottom: '15%',
+    paddingBottom: '10%',
     paddingTop: '10%',
     paddingRight: '10%',
     paddingLeft: '10%',
@@ -146,6 +167,7 @@ const styles = StyleSheet.create({
   backgroundView: {
     alignSelf: 'center',
     flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: 'rgba(52, 52, 52, 1)',
     borderRadius: 50,
   },
@@ -169,6 +191,8 @@ const styles = StyleSheet.create({
   },
   list: {
     backgroundColor: 'rgba(52, 52, 52, 0.8)',
+    marginTop: '1%',
+    paddingBottom: '5%',
     borderRadius: 25,
     width: '100%',
   },

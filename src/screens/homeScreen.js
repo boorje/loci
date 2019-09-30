@@ -210,7 +210,7 @@ export default class HomeScreen extends React.Component {
           />
         </Camera>
         {showNearbyPlacesList && (
-          <View style={{flex: 1}}>
+          <View style={{flex: 1, zIndex: -1}}>
             <Text style={styles.headlineText}>
               {this.state.nearbyPlaces === null
                 ? 'No places nearby...'
@@ -223,7 +223,7 @@ export default class HomeScreen extends React.Component {
           </View>
         )}
         {showBookmarkedPlacesList && (
-          <View style={{flex: 1}}>
+          <View style={{flex: 1, zIndex: -1}}>
             <Text style={styles.headlineText}>Bookmarked places</Text>
             <ListOfPlaces
               places={bookmarkedPlaces}
