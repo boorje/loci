@@ -38,7 +38,9 @@ const RenderPlace = props => {
       style={styles.listItem}
       onPress={() => props.navigateToPlace(place.index)}>
       <View style={{flexDirection: 'row'}}>
-        <Text style={{fontFamily: fonts.avenirNext}}>{name}</Text>
+        <Text style={{color: props.textColor, fontFamily: fonts.avenirNext}}>
+          {name}
+        </Text>
       </View>
       <Stars style={styles.stars} rating={rating} starSize={17} />
     </TouchableOpacity>
@@ -48,6 +50,10 @@ const RenderPlace = props => {
 const _flatListItemSeparator = () => <View style={styles.separator} />;
 
 const ListOfPlaces = props => {
+  const headlineColor = props.headlineColor
+    ? props.headlineColor
+    : colors.charcoal;
+  const textColor = props.textColor ? props.textColor : colors.charcoal;
   return (
     <View style={styles.container}>
       <Text
@@ -56,6 +62,7 @@ const ListOfPlaces = props => {
           fontSize: 18,
           marginBottom: '3%',
           fontWeight: 'bold',
+          color: headlineColor,
         }}>
         {props.headline}
       </Text>
@@ -63,6 +70,7 @@ const ListOfPlaces = props => {
         data={props.places}
         renderItem={place => (
           <RenderPlace
+            textColor={textColor}
             place={place}
             navigateToPlace={index => props.navigateToPlace(index)}
           />

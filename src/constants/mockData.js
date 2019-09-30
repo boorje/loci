@@ -42,4 +42,32 @@ export const arrayObj = [
     type: 'restaurant',
     user_ratings_total: 705,
   },
+  {
+    name: 'Upcyle Café',
+    price_level: 2,
+    rating: 3.5,
+    type: 'restaurant',
+    user_ratings_total: 705,
+  },
+  {
+    name: 'Upcyle Café',
+    price_level: 2,
+    rating: 3.5,
+    type: 'restaurant',
+    user_ratings_total: 705,
+  },
+  {
+    name: 'Upcyle Café',
+    price_level: 2,
+    rating: 3.5,
+    type: 'restaurant',
+    user_ratings_total: 705,
+  },
+  {
+    name: 'Upcyle Café',
+    price_level: 2,
+    rating: 3.5,
+    type: 'restaurant',
+    user_ratings_total: 705,
+  },
 ];

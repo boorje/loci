@@ -9,7 +9,7 @@ import ListOfPlaces from './listOfPlaces';
 import mockData from '../constants/mockData';
 
 const url =
-  'https://images.unsplash.com/photo-1560557102-b14bfc6b1988?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=632&q=80';
+  'https://images.unsplash.com/photo-1520440229-6469a149ac59?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=675&q=80';
 
 export default class AppCamera extends React.Component {
   //? Catch error here?
