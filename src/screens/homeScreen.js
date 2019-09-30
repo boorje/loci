@@ -39,6 +39,7 @@ export default class HomeScreen extends React.Component {
     bookmarkedPlaces: [],
     showNearbyPlacesList: false,
     showBookmarkedPlacesList: false,
+    showSearchBar: false,
   };
 
   componentDidMount = async () => {
@@ -188,6 +189,23 @@ export default class HomeScreen extends React.Component {
     });
   };
 
+  showSearchBar = () => {
+    LayoutAnimation.configureNext(springAnimation);
+    this.state.showSearchBar
+      ? this.setState({showSearchBar: false})
+      : this.setState({showSearchBar: true});
+    console.log(this.state.showSearchBar);
+  };
+
+  untoggleAll = () => {
+    LayoutAnimation.configureNext(springAnimation);
+    this.setState({
+      showNearbyPlacesList: false,
+      showBookmarkedPlacesList: false,
+      showSearchBar: false,
+    });
+  };
+
   render() {
     const {
       nearbyPlaces,
@@ -200,12 +218,15 @@ export default class HomeScreen extends React.Component {
         <Camera
           style={{flex: 1}}
           takePhoto={photo => this.takePhoto(photo)}
+          untoggleAll={() => this.untoggleAll()}
           bookmarkPressed={showBookmarkedPlacesList}
           locationPressed={showNearbyPlacesList}
           showNearbyPlacesList={() => this.showNearbyPlacesList()}
           showBookmarkedList={() => this.showBookmarkedList()}>
           <SearchBar
             places={nearbyPlaces}
+            showSearchBar={() => this.showSearchBar()}
+            searchBarVisible={this.state.showSearchBar}
             navigateToPlace={placeInfo => this.navToResultForSearch(placeInfo)}
           />
         </Camera>

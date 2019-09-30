@@ -25,16 +25,9 @@ export default class SearchBar extends React.Component {
   state = {
     searchText: '',
     loading: false,
-    showSearchBar: false,
+    searchBarVisible: this.props.searchBarVisible,
     showResults: false,
     foundPlaces: [],
-  };
-
-  _showSearchBar = () => {
-    LayoutAnimation.configureNext(springAnimation);
-    this.state.showSearchBar
-      ? this.setState({showSearchBar: false})
-      : this.setState({showSearchBar: true});
   };
 
   _showSearchResults = async () => {
@@ -52,7 +45,7 @@ export default class SearchBar extends React.Component {
   };
 
   _closeSearchBar = () => {
-    this.setState({showSearchBar: false, foundPlaces: [], searchText: ''});
+    this.setState({searchBarVisible: false, foundPlaces: [], searchText: ''});
   };
 
   navToResultForSearch = placeIndex => {
@@ -72,14 +65,16 @@ export default class SearchBar extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        {!this.state.showSearchBar ? (
+        {!this.props.searchBarVisible ? (
           <View style={styles.searchIcon}>
             <Icon
               name="search"
               style={{padding: 5}}
               color={colors.paper}
               size={30}
-              onPress={() => this._showSearchBar()}
+              onPress={() => {
+                this.props.showSearchBar();
+              }}
             />
           </View>
         ) : (
@@ -91,7 +86,7 @@ export default class SearchBar extends React.Component {
                   style={{padding: 5}}
                   color={colors.paper}
                   size={30}
-                  onPress={() => this._showSearchBar()}
+                  onPress={() => this.props.showSearchBar()}
                 />
               </View>
               <TextInput
@@ -112,15 +107,17 @@ export default class SearchBar extends React.Component {
                   this._showSearchResults();
                 }}
               />
-              <Icon
-                style={{padding: 5}}
-                name="close"
-                color={colors.paper}
-                size={25}
-                onPress={() => {
-                  this._clearSearch();
-                }}
-              />
+              {this.state.searchText != '' && (
+                <Icon
+                  style={{padding: 5}}
+                  name="close"
+                  color={colors.paper}
+                  size={25}
+                  onPress={() => {
+                    this._clearSearch();
+                  }}
+                />
+              )}
             </View>
             {this.state.showResults && (
               <View style={styles.list}>
