@@ -191,10 +191,13 @@ export default class HomeScreen extends React.Component {
 
   showSearchBar = () => {
     LayoutAnimation.configureNext(springAnimation);
+    this.setState({
+      showNearbyPlacesList: false,
+      showBookmarkedPlacesList: false,
+    });
     this.state.showSearchBar
       ? this.setState({showSearchBar: false})
       : this.setState({showSearchBar: true});
-    console.log(this.state.showSearchBar);
   };
 
   untoggleAll = () => {
