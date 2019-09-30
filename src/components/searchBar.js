@@ -1,16 +1,32 @@
 import React from 'react';
-import {StyleSheet, TextInput, View, LayoutAnimation} from 'react-native';
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  LayoutAnimation,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Proptypes from 'prop-types';
+
+// -- components --
+import ListOfPlaces from '../components/listOfPlaces';
+
+// -- constants --
 import colors from '../constants/colors';
 import {springAnimation} from '../constants/animations';
-import ListOfPlaces from '../components/listOfPlaces';
+
+// -- Helpers --
+import searchTextPlaces from '../helpers/googleAPI/searchTextPlaces';
 
 export default class SearchBar extends React.Component {
   state = {
     searchText: '',
+    loading: false,
     showSearchBar: false,
     showResults: false,
+    foundPlaces: [],
   };
 
   _showSearchBar = () => {
@@ -20,11 +36,27 @@ export default class SearchBar extends React.Component {
       : this.setState({showSearchBar: true});
   };
 
-  _showResults = () => {
-    LayoutAnimation.configureNext(springAnimation);
-    this.state.showResults
-      ? this.setState({showResults: false})
-      : this.setState({showResults: true});
+  _showSearchResults = async () => {
+    try {
+      this.setState({loading: true, showResults: true, foundPlaces: []});
+      const foundPlaces = await searchTextPlaces(this.state.searchText);
+      LayoutAnimation.configureNext(springAnimation);
+      this.setState({foundPlaces});
+    } catch (error) {
+      // TODO: Add title in the search area instead of alert
+      this.setState({showResults: false});
+      Alert.alert(error, 'Please try again.');
+    }
+    this.setState({loading: false});
+  };
+
+  _closeSearchBar = () => {
+    this.setState({showSearchBar: false, foundPlaces: [], searchText: ''});
+  };
+
+  navToResultForSearch = placeIndex => {
+    this.props.navigateToPlace(this.state.foundPlaces[placeIndex]);
+    this._closeSearchBar();
   };
 
   render() {
@@ -64,9 +96,7 @@ export default class SearchBar extends React.Component {
                 autoFocus={true}
                 returnKeyType="search"
                 onSubmitEditing={() => {
-                  // this.props.searchFor(this.state.searchText); // ! Disabled
-                  this._showResults();
-                  //this.setState({searchText: ''});
+                  this._showSearchResults();
                 }}
               />
             </View>
@@ -75,8 +105,11 @@ export default class SearchBar extends React.Component {
                 <ListOfPlaces
                   textColor={'white'}
                   headlineColor={'white'}
-                  places={this.props.places}
-                  headline={'Search results'}
+                  places={this.state.loading ? [] : this.state.foundPlaces}
+                  headline={
+                    this.state.loading ? 'Searching...' : 'Search results'
+                  }
+                  navigateToPlace={index => this.navToResultForSearch(index)}
                 />
               </View>
             )}
@@ -89,6 +122,7 @@ export default class SearchBar extends React.Component {
 
 SearchBar.proptypes = {
   searchFor: Proptypes.func.isRequired,
+  navigateToPlace: Proptypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({

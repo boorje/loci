@@ -1,9 +1,8 @@
 import React from 'react';
-import {View, StyleSheet, LayoutAnimation} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import PropTypes from 'prop-types';
 import colors from '../constants/colors';
-import {springAnimation} from '../constants/animations';
 
 export default class CameraMenu extends React.Component {
   state = {
@@ -44,8 +43,7 @@ export default class CameraMenu extends React.Component {
               color={colors.paper}
               size={35}
               onPress={() => {
-                this.props.showFavorites();
-                //this.toggleBookmark();
+                this.props.showBookmarkedList();
               }}
             />
           </View>
@@ -72,9 +70,7 @@ export default class CameraMenu extends React.Component {
               color={colors.paper}
               size={35}
               onPress={() => {
-                this.props.showNearby();
-                console.log(this.props.locationPressed);
-                //this.toggleLocation();
+                this.props.showNearbyPlacesList();
               }}
             />
           </View>
@@ -89,8 +85,8 @@ export default class CameraMenu extends React.Component {
               size={35}
               onPress={() => {
                 this.props.locationPressed
-                  ? this.props.showNearby()
-                  : this.props.showFavorites();
+                  ? this.props.showNearbyPlacesList()
+                  : this.props.showBookmarkedList();
               }}
             />
           </View>

@@ -13,8 +13,6 @@ import LinearGradient from 'react-native-linear-gradient';
 // -- Constants --
 import colors from '../constants/colors';
 import fonts from '../constants/fonts';
-// ! MOCKDATA
-import {singleObj} from '../constants/mockData';
 
 // -- Helper Functions --
 import googleOcr from '../helpers/googleAPI/googleOcr';
@@ -50,21 +48,13 @@ class ResultScreen extends React.Component {
 
   componentDidMount = async () => {
     try {
-      // const placeInfo = await this._fetchInfoAboutPlace();
-      // ! MOCKDATA
-      const placeInfo = singleObj;
+      const placeInfo = await this._fetchInfoAboutPlace();
       await this._updateStateWith(placeInfo);
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
       // Google API - name not found -> present nearby locations or retake photo. Add description on how to take proper photo
       this.setState({apiError: error});
-      Alert.alert(error, 'Please try again.', [
-        {text: 'Search again', onPress: () => this.props.navigation.goBack()},
-        {
-          text: 'Nearby places',
-          onPress: () => console.log('Show nearby places'),
-        },
-      ]);
+      Alert.alert(error, 'Please try again.');
     }
     this.setState({loading: false});
   };

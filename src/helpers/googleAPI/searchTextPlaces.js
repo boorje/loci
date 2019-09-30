@@ -12,7 +12,7 @@ const _replaceSpacesWithPlus = string => string.split(' ').join('+');
  */
 const _searchUrl = searchText => {
   const params = {
-    query: _replaceSpacesWithPlus(searchText),
+    query: _replaceSpacesWithPlus(searchText.toLowerCase()),
     type: 'restaurant',
     key: GOOGLE_API_KEY,
   };
@@ -38,10 +38,15 @@ const searchTextPlaces = async searchQuery => {
           'Content-Type': 'application/json',
         },
       });
-      const jsonResponse = await response.json();
-      resolve(jsonResponse.results);
+      const {results} = await response.json();
+      if (results.length < 1) {
+        throw 'Could not find any restaurants from your search';
+      }
+      resolve(results);
     } catch (error) {
-      reject('Could not find any restaurants from your search');
+      error
+        ? reject('Could not find any restaurants from your search')
+        : 'Default error';
     }
   });
 };

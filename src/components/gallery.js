@@ -27,6 +27,7 @@ class Gallery extends React.Component {
   };
 
   _renderItem = ({item, index}) => {
+    console.log(item);
     return (
       <View style={styles.shadow}>
         <View style={styles.imageContainer}>
@@ -36,7 +37,7 @@ class Gallery extends React.Component {
               height: this.state.height,
               borderRadius: entryBorderRadius,
             }}
-            source={{uri: item}}
+            source={{uri: this._extractUrls(item)}}
           />
         </View>
       </View>
