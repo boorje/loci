@@ -26,7 +26,7 @@ import getPosition from '../helpers/getPosition';
 import getDistanceTo from '../helpers/getDistanceTo';
 import {getStorageItems} from '../helpers/asyncStorage';
 
-// So that it works on Android //? WHAT WORKS?!?
+// So that it works on Android //? WHAT WORKS?!? Layoutanimation, all animations used before "setState"
 // const {UIManager} = NativeModules;
 // UIManager.setLayoutAnimationEnabledExperimental &&
 //   UIManager.setLayoutAnimationEnabledExperimental(true);
