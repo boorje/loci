@@ -44,13 +44,9 @@ export default class SearchBar extends React.Component {
     this.setState({loading: false});
   };
 
-  _closeSearchBar = () => {
-    this.setState({searchBarVisible: false, foundPlaces: [], searchText: ''});
-  };
-
   navToResultForSearch = placeIndex => {
     this.props.navigateToPlace(this.state.foundPlaces[placeIndex]);
-    this._closeSearchBar();
+    this._clearSearch();
   };
 
   _clearSearch = () => {

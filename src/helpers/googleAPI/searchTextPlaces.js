@@ -6,9 +6,9 @@ const _replaceSpacesWithPlus = string => string.split(' ').join('+');
 /**
  * Returns the url with specified params for google API
  *
- * @param {string} searcText The text to search for
- * @param {object} userLocation The users location as {lat,long}
- * @returns {string}
+ * @param {String} searcText The text to search for
+ * @param {Object} userLocation The users location as {lat,long}
+ * @returns {String}
  */
 const _searchUrl = searchText => {
   const params = {
@@ -22,11 +22,10 @@ const _searchUrl = searchText => {
 };
 
 /**
- * Returns the #1 restaurant found
+ * Returns the 5 top places found
  *
- * @param {string} searcText The text to search for
- * @param {object} userLocation The users location as {lat,long}
- * @returns {object}
+ * @param {String} searchQuery The text to search for
+ * @returns {Array}
  */
 const searchTextPlaces = async searchQuery => {
   return new Promise(async (resolve, reject) => {
@@ -42,7 +41,8 @@ const searchTextPlaces = async searchQuery => {
       if (results.length < 1) {
         throw 'Could not find any restaurants from your search';
       }
-      resolve(results);
+      const n = 5;
+      resolve(results.slice(0, n));
     } catch (error) {
       error
         ? reject('Could not find any restaurants from your search')

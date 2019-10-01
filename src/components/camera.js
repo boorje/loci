@@ -103,7 +103,7 @@ export default class AppCamera extends React.Component {
     return (
       <View style={styles.container}>
         <TouchableHighlight
-          style={{flex: 1, underlayColor: 'transparent'}}
+          style={{flex: 1}}
           onPress={() => this.props.untoggleAll()}>
           <RNCamera
             style={styles.camera}

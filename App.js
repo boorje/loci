@@ -7,10 +7,6 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import HomeScreen from './src/screens/homeScreen';
 import ResultScreen from './src/screens/resultScreen';
 
-// Modal
-import SearchOptionsModal from './src/screens/searchOptionsModal';
-import FavoritesModal from './src/screens/favoritesModal';
-
 Icon.loadFont();
 
 const MainStack = createStackNavigator(
@@ -28,26 +24,7 @@ const MainStack = createStackNavigator(
   },
 );
 
-const RootStack = createStackNavigator(
-  {
-    Main: {
-      screen: MainStack,
-    },
-    SearchOptionsModal: {
-      screen: SearchOptionsModal,
-    },
-    FavoritesModal: {
-      screen: FavoritesModal,
-    },
-  },
-  {
-    //card or modal
-    mode: 'card',
-    headerMode: 'none',
-  },
-);
-
-const AppContainer = createAppContainer(RootStack);
+const AppContainer = createAppContainer(MainStack);
 
 export default class App extends React.Component {
   render() {

@@ -137,7 +137,6 @@ class ResultScreen extends React.Component {
     }
   };
 
-  // TODO: Make sure reviews and photos have loaded before being able to press
   toggleBookmarkIcon = async () => {
     try {
       if (!this.state.loading) {

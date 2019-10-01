@@ -1,17 +1,9 @@
 import React from 'react';
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Alert,
-} from 'react-native';
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import PropTypes from 'prop-types';
 import Stars from '../components/stars';
 import colors from '../constants/colors';
 import fonts from '../constants/fonts';
-import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const _classifyDistanceAway = distance => {

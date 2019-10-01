@@ -1,18 +1,19 @@
 import React from 'react';
 import {
   Alert,
+  ActionSheetIOS,
   LayoutAnimation,
-  NativeModules,
+  Linking,
   View,
   Text,
   StyleSheet,
 } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
-import AsyncStorage from '@react-native-community/async-storage';
 
 // --- Components ---
 import Camera from '../components/camera';
 import SearchBar from '../components/searchBar';
+import Button from '../components/button';
 
 // -- Constants --
 import {springAnimation} from '../constants/animations';
@@ -36,6 +37,7 @@ export default class HomeScreen extends React.Component {
   };
   state = {
     userLocation: {latitude: '', longitude: ''},
+    locationFound: false,
     nearbyPlaces: [],
     bookmarkedPlaces: [],
     showNearbyPlacesList: false,
@@ -54,6 +56,7 @@ export default class HomeScreen extends React.Component {
         userLocation: {
           latitude: coords.latitude,
           longitude: coords.longitude,
+          locationFound: true,
         },
       });
     } catch (error) {
@@ -78,8 +81,6 @@ export default class HomeScreen extends React.Component {
     }
   };
 
-  _shoot = props => {};
-
   _navToResultForPhoto = base64 => {
     this.props.navigation.navigate('Results', {
       base64: base64,
@@ -95,21 +96,17 @@ export default class HomeScreen extends React.Component {
 
   // -- NEARBY LOCATION ACTIONS --
   _fetchNearbyPlaces = async () => {
-    return new Promise(async (resolve, reject) => {
-      if (!this.state.userLocation) {
-        reject('Enable user location to see nearby locations');
-      }
+    if (this.state.locationFound) {
       const {latitude, longitude} = this.state.userLocation;
-      if (!latitude || !longitude) {
-        reject('Enable user location to see nearby locations');
+      if (latitude.length > 0 && longitude.length > 0) {
+        let nearbyPlaces = await findNearbyPlaces();
+        if (nearbyPlaces.length > 0) {
+          nearbyPlaces = await this._calcDistanceTo(nearbyPlaces);
+          return nearbyPlaces;
+        }
       }
-      let nearbyPlaces = await findNearbyPlaces();
-      if (nearbyPlaces.length < 1) {
-        reject('No nearby places found.');
-      }
-      nearbyPlaces = this._calcDistanceTo(nearbyPlaces);
-      resolve(nearbyPlaces);
-    });
+    }
+    return null;
   };
 
   _calcDistanceTo = places => {
@@ -138,7 +135,12 @@ export default class HomeScreen extends React.Component {
       this.setState({showNearbyPlacesList: true});
       if (nearbyPlaces.length < 1) {
         const foundPlaces = await this._fetchNearbyPlaces();
-        this.setState({showNearbyPlacesList: true, nearbyPlaces: foundPlaces});
+        if (foundPlaces !== null) {
+          this.setState({
+            showNearbyPlacesList: true,
+            nearbyPlaces: foundPlaces,
+          });
+        }
       }
     } else {
       this.setState({showNearbyPlacesList: false});
@@ -189,6 +191,7 @@ export default class HomeScreen extends React.Component {
 
   // -- SEARCH ACTIONS --
   navToResultForSearch = placeInfo => {
+    this.setState({showSearchBar: false});
     this.props.navigation.navigate('Results', {
       placeInfo,
       selectedType: 'SEARCH',
@@ -215,12 +218,27 @@ export default class HomeScreen extends React.Component {
     });
   };
 
+  enableLocation = () => {
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: ['Cancel', 'Settings'],
+        cancelButtonIndex: 0,
+      },
+      buttonIndex => {
+        if (buttonIndex === 1) {
+          Linking.openSettings();
+        }
+      },
+    );
+  };
+
   render() {
     const {
       nearbyPlaces,
       bookmarkedPlaces,
       showNearbyPlacesList,
       showBookmarkedPlacesList,
+      locationFound,
     } = this.state;
     return (
       <View style={{flex: 1}}>
@@ -246,11 +264,15 @@ export default class HomeScreen extends React.Component {
                 ? 'No places nearby...'
                 : 'Places near you'}
             </Text>
-            <ListOfPlaces
-              places={nearbyPlaces}
-              showBookmark={false}
-              navigateToPlace={index => this.navToResultForNearby(index)}
-            />
+            {locationFound ? (
+              <ListOfPlaces
+                places={nearbyPlaces}
+                showBookmark={false}
+                navigateToPlace={index => this.navToResultForNearby(index)}
+              />
+            ) : (
+              <Button title="Enable location" onPress={this.enableLocation} />
+            )}
           </View>
         )}
         {showBookmarkedPlacesList && (
