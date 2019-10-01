@@ -16,6 +16,7 @@ import ListOfPlaces from '../components/listOfPlaces';
 // -- constants --
 import colors from '../constants/colors';
 import {springAnimation} from '../constants/animations';
+import fonts from '../constants/fonts';
 
 // -- Helpers --
 import searchTextPlaces from '../helpers/googleAPI/searchTextPlaces';
@@ -24,16 +25,9 @@ export default class SearchBar extends React.Component {
   state = {
     searchText: '',
     loading: false,
-    showSearchBar: false,
+    searchBarVisible: this.props.searchBarVisible,
     showResults: false,
     foundPlaces: [],
-  };
-
-  _showSearchBar = () => {
-    LayoutAnimation.configureNext(springAnimation);
-    this.state.showSearchBar
-      ? this.setState({showSearchBar: false})
-      : this.setState({showSearchBar: true});
   };
 
   _showSearchResults = async () => {
@@ -51,7 +45,7 @@ export default class SearchBar extends React.Component {
   };
 
   _closeSearchBar = () => {
-    this.setState({showSearchBar: false, foundPlaces: [], searchText: ''});
+    this.setState({searchBarVisible: false, foundPlaces: [], searchText: ''});
   };
 
   navToResultForSearch = placeIndex => {
@@ -59,17 +53,28 @@ export default class SearchBar extends React.Component {
     this._closeSearchBar();
   };
 
+  _clearSearch = () => {
+    this.setState({
+      searchText: '',
+      foundPlaces: [],
+      showResults: false,
+    });
+    this.searchField.focus();
+  };
+
   render() {
     return (
       <View style={styles.container}>
-        {!this.state.showSearchBar ? (
+        {!this.props.searchBarVisible ? (
           <View style={styles.searchIcon}>
             <Icon
               name="search"
               style={{padding: 5}}
               color={colors.paper}
               size={30}
-              onPress={() => this._showSearchBar()}
+              onPress={() => {
+                this.props.showSearchBar();
+              }}
             />
           </View>
         ) : (
@@ -81,7 +86,7 @@ export default class SearchBar extends React.Component {
                   style={{padding: 5}}
                   color={colors.paper}
                   size={30}
-                  onPress={() => this._showSearchBar()}
+                  onPress={() => this.props.showSearchBar()}
                 />
               </View>
               <TextInput
@@ -95,20 +100,38 @@ export default class SearchBar extends React.Component {
                 autoCorrect={false}
                 autoFocus={true}
                 returnKeyType="search"
+                ref={input => {
+                  this.searchField = input;
+                }}
                 onSubmitEditing={() => {
                   this._showSearchResults();
                 }}
               />
+              {this.state.searchText != '' && (
+                <Icon
+                  style={{padding: 5}}
+                  name="close"
+                  color={colors.paper}
+                  size={25}
+                  onPress={() => {
+                    this._clearSearch();
+                  }}
+                />
+              )}
             </View>
             {this.state.showResults && (
               <View style={styles.list}>
+                <Text style={styles.headlineText}>
+                  {this.state.loading
+                    ? 'Searching...'
+                    : this.state.foundPlaces === null
+                    ? 'No results found'
+                    : 'Search results'}
+                </Text>
                 <ListOfPlaces
+                  showBookmarks={true}
                   textColor={'white'}
-                  headlineColor={'white'}
                   places={this.state.loading ? [] : this.state.foundPlaces}
-                  headline={
-                    this.state.loading ? 'Searching...' : 'Search results'
-                  }
                   navigateToPlace={index => this.navToResultForSearch(index)}
                 />
               </View>
@@ -132,7 +155,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'flex-start',
     marginTop: '5%',
-    paddingBottom: '15%',
+    paddingBottom: '10%',
     paddingTop: '10%',
     paddingRight: '10%',
     paddingLeft: '10%',
@@ -142,8 +165,17 @@ const styles = StyleSheet.create({
   backgroundView: {
     alignSelf: 'center',
     flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: 'rgba(52, 52, 52, 1)',
     borderRadius: 50,
+  },
+  headlineText: {
+    fontFamily: fonts.avenirNext,
+    fontSize: 18,
+    marginLeft: '3%',
+    marginTop: '5%',
+    fontWeight: 'bold',
+    color: 'white',
   },
   searchIcon: {
     borderRadius: 50,
@@ -157,9 +189,9 @@ const styles = StyleSheet.create({
   },
   list: {
     backgroundColor: 'rgba(52, 52, 52, 0.8)',
+    marginTop: '1%',
+    paddingBottom: '5%',
     borderRadius: 25,
     width: '100%',
-    paddingBottom: '10%',
-    top: 5,
   },
 });

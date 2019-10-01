@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, TouchableHighlight} from 'react-native';
 import PropTypes from 'prop-types';
 import {RNCamera} from 'react-native-camera';
 import colors from '../constants/colors';
@@ -26,10 +26,10 @@ export default class AppCamera extends React.Component {
         {!locationPressed && (
           <View style={styles.icon}>
             <Icon
-              style={{padding: 5}}
+              style={{padding: 10}}
               name={'bookmark'}
               color={colors.paper}
-              size={35}
+              size={30}
               onPress={() => {
                 this.props.showBookmarkedList();
               }}
@@ -56,10 +56,10 @@ export default class AppCamera extends React.Component {
         {!bookmarkPressed && (
           <View style={styles.icon}>
             <Icon
-              style={{padding: 5}}
+              style={{padding: 10}}
               name="near-me"
               color={colors.paper}
-              size={35}
+              size={30}
               onPress={() => {
                 this.props.showNearbyPlacesList();
               }}
@@ -102,13 +102,17 @@ export default class AppCamera extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <RNCamera
-          style={styles.camera}
-          ref={ref => {
-            this.camera = ref;
-          }}
-          captureAudio={false}
-        />
+        <TouchableHighlight
+          style={{flex: 1, underlayColor: 'transparent'}}
+          onPress={() => this.props.untoggleAll()}>
+          <RNCamera
+            style={styles.camera}
+            ref={ref => {
+              this.camera = ref;
+            }}
+            captureAudio={false}
+          />
+        </TouchableHighlight>
         {this.props.children}
         {this._renderCameraMenu()}
       </View>

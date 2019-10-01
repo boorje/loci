@@ -12,6 +12,7 @@ import Stars from '../components/stars';
 import colors from '../constants/colors';
 import fonts from '../constants/fonts';
 import AsyncStorage from '@react-native-community/async-storage';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const _classifyDistanceAway = distance => {
   if (distance < 500) {
@@ -33,16 +34,28 @@ const RenderPlace = props => {
       ? 'open'
       : 'closed'
     : null;
+
   return (
     <TouchableOpacity
       style={styles.listItem}
       onPress={() => props.navigateToPlace(place.index)}>
-      <View style={{flexDirection: 'row'}}>
-        <Text style={{color: props.textColor, fontFamily: fonts.avenirNext}}>
-          {name}
-        </Text>
+      <View style={styles.itemContainer}>
+        <View>
+          <Text style={{color: props.textColor, fontFamily: fonts.avenirNext}}>
+            {name}
+          </Text>
+          <Stars style={styles.stars} rating={rating} starSize={17} />
+        </View>
+        {props.showBookmark && (
+          <Icon
+            style={{padding: 10}}
+            name={'bookmark'}
+            color={'red'}
+            size={30}
+            onPress={() => {}}
+          />
+        )}
       </View>
-      <Stars style={styles.stars} rating={rating} starSize={17} />
     </TouchableOpacity>
   );
 };
@@ -50,27 +63,15 @@ const RenderPlace = props => {
 const _flatListItemSeparator = () => <View style={styles.separator} />;
 
 const ListOfPlaces = props => {
-  const headlineColor = props.headlineColor
-    ? props.headlineColor
-    : colors.charcoal;
   const textColor = props.textColor ? props.textColor : colors.charcoal;
   return (
     <View style={styles.container}>
-      <Text
-        style={{
-          fontFamily: fonts.avenirNext,
-          fontSize: 18,
-          marginBottom: '3%',
-          fontWeight: 'bold',
-          color: headlineColor,
-        }}>
-        {props.headline}
-      </Text>
       <FlatList
         data={props.places}
         renderItem={place => (
           <RenderPlace
             textColor={textColor}
+            showBookmark={props.showBookmark} // TODO: Make bookmark appear on items which have been marked on beforehand. Not every single one.
             place={place}
             navigateToPlace={index => props.navigateToPlace(index)}
           />
@@ -87,8 +88,13 @@ export default ListOfPlaces;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: '10%',
+    marginTop: '3%',
     marginLeft: '3%',
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   listItem: {
     flex: 1,
@@ -110,5 +116,4 @@ ListOfPlaces.proptypes = {
   navigateToPlace: PropTypes.func.isRequired,
   toggleListOfPlaces: PropTypes.func, //TODO: isRequired ?
   arrowIconDirection: PropTypes.string, //TODO: isRequired ?
-  headline: PropTypes.string.isRequired,
 };

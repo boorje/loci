@@ -1,5 +1,12 @@
 import React from 'react';
-import {Alert, LayoutAnimation, NativeModules, View} from 'react-native';
+import {
+  Alert,
+  LayoutAnimation,
+  NativeModules,
+  View,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -9,6 +16,7 @@ import SearchBar from '../components/searchBar';
 
 // -- Constants --
 import {springAnimation} from '../constants/animations';
+import fonts from '../constants/fonts';
 
 // --- Helper Functions ---
 import ListOfPlaces from '../components/listOfPlaces';
@@ -32,6 +40,7 @@ export default class HomeScreen extends React.Component {
     bookmarkedPlaces: [],
     showNearbyPlacesList: false,
     showBookmarkedPlacesList: false,
+    showSearchBar: false,
   };
 
   componentDidMount = async () => {
@@ -186,6 +195,26 @@ export default class HomeScreen extends React.Component {
     });
   };
 
+  showSearchBar = () => {
+    LayoutAnimation.configureNext(springAnimation);
+    this.setState({
+      showNearbyPlacesList: false,
+      showBookmarkedPlacesList: false,
+    });
+    this.state.showSearchBar
+      ? this.setState({showSearchBar: false})
+      : this.setState({showSearchBar: true});
+  };
+
+  untoggleAll = () => {
+    LayoutAnimation.configureNext(springAnimation);
+    this.setState({
+      showNearbyPlacesList: false,
+      showBookmarkedPlacesList: false,
+      showSearchBar: false,
+    });
+  };
+
   render() {
     const {
       nearbyPlaces,
@@ -198,30 +227,54 @@ export default class HomeScreen extends React.Component {
         <Camera
           style={{flex: 1}}
           takePhoto={photo => this.takePhoto(photo)}
+          untoggleAll={() => this.untoggleAll()}
           bookmarkPressed={showBookmarkedPlacesList}
           locationPressed={showNearbyPlacesList}
           showNearbyPlacesList={() => this.showNearbyPlacesList()}
           showBookmarkedList={() => this.showBookmarkedList()}>
           <SearchBar
             places={nearbyPlaces}
+            showSearchBar={() => this.showSearchBar()}
+            searchBarVisible={this.state.showSearchBar}
             navigateToPlace={placeInfo => this.navToResultForSearch(placeInfo)}
           />
         </Camera>
         {showNearbyPlacesList && (
-          <ListOfPlaces
-            places={nearbyPlaces}
-            headline={'Places near you'}
-            navigateToPlace={index => this.navToResultForNearby(index)}
-          />
+          <View style={{flex: 1, zIndex: -1}}>
+            <Text style={styles.headlineText}>
+              {this.state.nearbyPlaces === null
+                ? 'No places nearby...'
+                : 'Places near you'}
+            </Text>
+            <ListOfPlaces
+              places={nearbyPlaces}
+              showBookmark={false}
+              navigateToPlace={index => this.navToResultForNearby(index)}
+            />
+          </View>
         )}
         {showBookmarkedPlacesList && (
-          <ListOfPlaces
-            places={bookmarkedPlaces}
-            headline={'Bookmarked places'}
-            navigateToPlace={index => this.navToResultForBookmarked(index)}
-          />
+          <View style={{flex: 1, zIndex: -1}}>
+            <Text style={styles.headlineText}>Bookmarked places</Text>
+            <ListOfPlaces
+              showBookmark={false}
+              places={bookmarkedPlaces}
+              navigateToPlace={index => this.navToResultForBookmarked(index)}
+            />
+          </View>
         )}
       </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  headlineText: {
+    fontFamily: fonts.avenirNext,
+    fontSize: 18,
+    marginLeft: '3%',
+    marginTop: '10%',
+    fontWeight: 'bold',
+    color: 'black',
+  },
+});
