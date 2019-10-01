@@ -53,15 +53,17 @@ class ResultScreen extends React.Component {
     try {
       const placeInfo = await this._fetchInfoAboutPlace();
       await this._updateStateWith(placeInfo);
-      await this._addPhotosAndReviews(placeInfo);
       const isBookmarked = await existsInStorage(placeInfo.place_id);
       this.setState({isBookmarked, loading: false});
+      await this._addPhotosAndReviews(placeInfo);
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
       // Google API - name not found -> present nearby locations or retake photo. Add description on how to take proper photo
       this.setState({loading: false});
       this.setState({apiError: error});
-      Alert.alert(error, 'Please try again.');
+      Alert.alert(error, 'Please try again.', [
+        {text: 'OK', onPress: () => this.closeScreen()},
+      ]);
     }
   };
 
@@ -69,7 +71,6 @@ class ResultScreen extends React.Component {
     this.props.navigation.goBack();
   };
 
-  // TODO. From photo, place_id different? not showing bookmarked. Photos not correct
   _fetchInfoAboutPlace = async () => {
     let thePlaceInfo;
     const {selectedType} = this.state;
@@ -79,8 +80,6 @@ class ResultScreen extends React.Component {
       const detectedName = await googleOcr(base64);
       const detectedPlace = await searchPlace(detectedName, userLocation);
       thePlaceInfo = await getPlaceDetails(detectedPlace);
-      // connects to google API to get the photos
-      thePlaceInfo.photos = await this._addPhotos(thePlaceInfo);
       // sets the place_id to the detected id
       thePlaceInfo.place_id = detectedPlace;
     } else if (selectedType === 'NEARBY' || selectedType === 'SEARCH') {
@@ -121,33 +120,31 @@ class ResultScreen extends React.Component {
     });
   };
 
-  _addPhotos = async placeInfo => {
-    try {
-      let fetchedPhotos = [];
-      fetchedPhotos[0] = await getPlacePhotos(
-        placeInfo.photos[0].photo_reference,
-      );
-      fetchedPhotos[1] = await getPlacePhotos(
-        placeInfo.photos[1].photo_reference,
-      );
-      return fetchedPhotos;
-    } catch (error) {
-      console.log('could not fetch the photos and reviews');
-    }
-  };
-
   _addPhotosAndReviews = async placeInfo => {
     try {
       const {selectedType} = this.state;
+      let fetchedPhotos = [];
       if (selectedType === 'NEARBY' || selectedType === 'SEARCH') {
         const {reviews, photos} = await getReviewsAndPhotos(placeInfo.place_id);
-        let fetchedPhotos = [];
         fetchedPhotos[0] = await getPlacePhotos(photos[0].photo_reference);
         fetchedPhotos[1] = await getPlacePhotos(photos[1].photo_reference);
         this.setState(prevState => ({
           placeInfo: {
             ...prevState.placeInfo,
             reviews: reviews,
+            photos: fetchedPhotos,
+          },
+        }));
+      } else if (selectedType === 'PHOTO') {
+        fetchedPhotos[0] = await getPlacePhotos(
+          placeInfo.photos[0].photo_reference,
+        );
+        fetchedPhotos[1] = await getPlacePhotos(
+          placeInfo.photos[1].photo_reference,
+        );
+        this.setState(prevState => ({
+          placeInfo: {
+            ...prevState.placeInfo,
             photos: fetchedPhotos,
           },
         }));
@@ -209,7 +206,7 @@ class ResultScreen extends React.Component {
         <View style={styles.bottomContainer}>
           <Section title="Images">
             <View style={styles.gallery}>
-              {photos.length > 0 && (
+              {photos.length > 0 && !loading && (
                 <Gallery
                   width={width * 0.88}
                   height={height * 0.2}
