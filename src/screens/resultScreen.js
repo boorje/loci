@@ -1,5 +1,12 @@
 import React from 'react';
-import {Alert, ScrollView, StyleSheet, Dimensions, View} from 'react-native';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  View,
+  Linking,
+} from 'react-native';
 
 // -- Components --
 import Stars from '../components/stars';
@@ -44,6 +51,7 @@ class ResultScreen extends React.Component {
       price_level: '',
       photos: [],
       reviews: [],
+      geometry: [],
     },
     isBookmarked: false,
   };
@@ -103,6 +111,7 @@ class ResultScreen extends React.Component {
       photos,
       reviews,
       place_id,
+      geometry,
     } = placeInfo;
 
     this.setState({
@@ -115,6 +124,7 @@ class ResultScreen extends React.Component {
         photos: photos ? photos : null,
         reviews: reviews ? reviews : null,
         place_id: place_id ? place_id : null,
+        geometry: geometry ? geometry : null,
       },
     });
   };
@@ -177,6 +187,15 @@ class ResultScreen extends React.Component {
       : this.setState({showPhotos: true});
   };
 
+  openGoogleMaps = placeInfo => {
+    const url =
+      'https://www.google.com/maps/search/?api=1&query=' +
+      placeInfo.geometry.location.lat +
+      ',' +
+      placeInfo.geometry.location.lng;
+    Linking.openURL(url).catch(err => console.error('An error occurred', err));
+  };
+
   render() {
     const {loading, isBookmarked, placeInfo} = this.state;
     const {rating, reviews, photos} = placeInfo;
@@ -191,6 +210,7 @@ class ResultScreen extends React.Component {
               <TopBar
                 closeScreen={() => this.closeScreen()}
                 placeInfo={placeInfo}
+                openMaps={placeInfo => this.openGoogleMaps(placeInfo)}
                 isBookmarked={isBookmarked}
                 toggleBookmarkIcon={() => this.toggleBookmarkIcon()}
                 loading={loading}

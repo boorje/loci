@@ -58,6 +58,20 @@ const TopBar = props => {
             backgroundColor="transparent"
             onPress={() => _sharePlace(props.placeInfo)}
           />
+          <Icon.Button
+            size={size}
+            name="directions"
+            color="white"
+            padding={0}
+            iconStyle={{
+              marginLeft: margin,
+              marginTop: margin,
+              marginBottom: margin,
+            }}
+            underlayColor="transparent"
+            backgroundColor="transparent"
+            onPress={() => props.openMaps(props.placeInfo)}
+          />
         </View>
         <View>
           <Icon.Button
