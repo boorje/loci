@@ -195,10 +195,18 @@ class ResultScreen extends React.Component {
                 toggleBookmarkIcon={() => this.toggleBookmarkIcon()}
                 loading={loading}
               />
-              <PlaceInformation placeInfo={placeInfo} width={width} />
+              <PlaceInformation
+                placeInfo={placeInfo}
+                width={width}
+                height={height}
+              />
             </View>
           </LinearGradient>
-          <Stars style={styles.stars} rating={rating} starSize={65} />
+          <Stars
+            style={styles.stars}
+            rating={rating}
+            starSize={height > 568 ? (height < 668 ? 50 : 65) : 40}
+          />
         </View>
 
         {/* IMAGES */}

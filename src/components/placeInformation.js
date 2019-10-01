@@ -37,7 +37,17 @@ const PlaceInformation = props => {
         marginBottom: '10%',
         justifyContent: 'center',
       }}>
-      <Text style={styles.name}>{name}</Text>
+      <Text
+        style={{
+          fontFamily: 'Avenir Next',
+          color: 'white',
+          fontWeight: 'bold',
+          fontSize: props.height > 667 ? 30 : 26,
+          textShadowColor: colors.charcoal,
+          textShadowRadius: 5,
+        }}>
+        {name}
+      </Text>
       <Text style={styles.type}>
         {_modifyType(type)} {type && price_level > 0 ? '-' : ''}{' '}
         {_renderDollarsFrom(price_level)}
@@ -60,14 +70,7 @@ PlaceInformation.proptypes = {
 };
 
 const styles = StyleSheet.create({
-  name: {
-    fontFamily: 'Avenir Next',
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 30,
-    textShadowColor: colors.charcoal,
-    textShadowRadius: 5,
-  },
+  name: {},
   type: {
     marginTop: 5,
     fontFamily: 'Avenir Next',

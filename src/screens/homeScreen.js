@@ -180,12 +180,7 @@ export default class HomeScreen extends React.Component {
       }
       return BOOKMARKED;
     } catch (error) {
-      Alert.alert(
-        'Oops',
-        error.errorMsg
-          ? error.errorMsg
-          : "Something wen't wrong. Please try again",
-      );
+      return null;
     }
   };
 
@@ -197,7 +192,7 @@ export default class HomeScreen extends React.Component {
     if (!showBookmarkedPlacesList) {
       this.setState({showBookmarkedPlacesList: true});
       const bookmarked = await this._getBookmarkedPlaces();
-      this.setState({bookmarkedPlaces: bookmarked});
+      if (bookmarked !== null) this.setState({bookmarkedPlaces: bookmarked});
     } else {
       this.setState({showBookmarkedPlacesList: false});
     }
@@ -279,11 +274,17 @@ export default class HomeScreen extends React.Component {
         {showBookmarkedPlacesList && (
           <View style={{flex: 1, zIndex: -1}}>
             <Text style={styles.headlineText}>Bookmarked places</Text>
-            <ListOfPlaces
-              showBookmark={false}
-              places={bookmarkedPlaces}
-              navigateToPlace={index => this.navToResultForBookmarked(index)}
-            />
+            {bookmarkedPlaces.length > 0 ? (
+              <ListOfPlaces
+                showBookmark={false}
+                places={bookmarkedPlaces}
+                navigateToPlace={index => this.navToResultForBookmarked(index)}
+              />
+            ) : (
+              <Text style={{marginTop: '10%', alignSelf: 'center'}}>
+                You don't have any bookmarked places
+              </Text>
+            )}
           </View>
         )}
       </View>
