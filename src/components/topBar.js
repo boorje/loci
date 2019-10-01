@@ -42,7 +42,6 @@ const TopBar = props => {
             }}
             backgroundColor="transparent"
             onPress={() => props.toggleBookmarkIcon()}
-            disabled={!props.loading}
           />
           <Icon.Button
             size={size}

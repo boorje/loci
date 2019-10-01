@@ -53,16 +53,16 @@ class ResultScreen extends React.Component {
     try {
       const placeInfo = await this._fetchInfoAboutPlace();
       await this._updateStateWith(placeInfo);
-      this._addPhotosAndReviews(placeInfo);
+      await this._addPhotosAndReviews(placeInfo);
       const isBookmarked = await existsInStorage(placeInfo.place_id);
-      this.setState({isBookmarked});
+      this.setState({isBookmarked, loading: false});
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
       // Google API - name not found -> present nearby locations or retake photo. Add description on how to take proper photo
+      this.setState({loading: false});
       this.setState({apiError: error});
       Alert.alert(error, 'Please try again.');
     }
-    this.setState({loading: false});
   };
 
   closeScreen = () => {
@@ -133,21 +133,23 @@ class ResultScreen extends React.Component {
         }));
       }
     } catch (error) {
-      Alert.alert(error);
+      console.log('could not fetch the photos and reviews');
     }
   };
 
   // TODO: Make sure reviews and photos have loaded before being able to press
   toggleBookmarkIcon = async () => {
     try {
-      const {place_id} = this.state.placeInfo;
-      const isBookmarked = await existsInStorage(place_id);
-      if (isBookmarked) {
-        await removeObjFromStorage(place_id);
-        this.setState({isBookmarked: false});
-      } else {
-        await addObjToStorage(this.state.placeInfo);
-        this.setState({isBookmarked: true});
+      if (!this.state.loading) {
+        const {place_id} = this.state.placeInfo;
+        const isBookmarked = await existsInStorage(place_id);
+        if (isBookmarked) {
+          await removeObjFromStorage(place_id);
+          this.setState({isBookmarked: false});
+        } else {
+          await addObjToStorage(this.state.placeInfo);
+          this.setState({isBookmarked: true});
+        }
       }
     } catch (error) {
       Alert.alert(error);
