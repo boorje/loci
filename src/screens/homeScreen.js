@@ -150,11 +150,11 @@ export default class HomeScreen extends React.Component {
 
   // -- BOOKMARKED ACTIONS --
   navToResultForBookmarked = placeIndex => {
-    this.setState({showBookmarkedPlacesList: false});
     this.props.navigation.navigate('Results', {
       placeInfo: this.state.bookmarkedPlaces[placeIndex],
       selectedType: 'BOOKMARKED',
     });
+    this.setState({showBookmarkedPlacesList: false});
   };
 
   _getBookmarkedPlaces = async () => {

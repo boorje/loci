@@ -40,6 +40,7 @@ const TopBar = props => {
               marginTop: margin,
               marginBottom: margin,
             }}
+            underlayColor="transparent"
             backgroundColor="transparent"
             onPress={() => props.toggleBookmarkIcon()}
           />

@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   },
 });
 
-Button.PropTypes = {
+Button.propTypes = {
   title: PropTypes.string.isRequired,
   onPress: PropTypes.func.isRequired,
 };
