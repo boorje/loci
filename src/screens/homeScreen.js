@@ -251,7 +251,7 @@ export default class HomeScreen extends React.Component {
           <View style={{flex: 1, zIndex: -1}}>
             <Text style={styles.headlineText}>Bookmarked places</Text>
             <ListOfPlaces
-              showBookmark={true}
+              showBookmark={false}
               places={bookmarkedPlaces}
               navigateToPlace={index => this.navToResultForBookmarked(index)}
             />
