@@ -58,6 +58,7 @@ const TopBar = props => {
             backgroundColor="transparent"
             onPress={() => _sharePlace(props.placeInfo)}
           />
+
           <Icon.Button
             size={size}
             name="directions"

@@ -6,6 +6,7 @@ import {
   Dimensions,
   View,
   Linking,
+  ActionSheetIOS,
 } from 'react-native';
 
 // -- Components --
@@ -84,7 +85,8 @@ class ResultScreen extends React.Component {
     if (selectedType === 'PHOTO') {
       const base64 = this.props.navigation.getParam('base64', null);
       const userLocation = this.props.navigation.getParam('userLocation', null);
-      const detectedName = await googleOcr(base64);
+      //const detectedName = await googleOcr(base64);
+      const detectedName = 'Burgersson Skanstorget';
       const detectedPlace = await searchPlace(detectedName, userLocation);
       thePlaceInfo = await getPlaceDetails(detectedPlace);
       // sets the place_id to the detected id
@@ -188,12 +190,50 @@ class ResultScreen extends React.Component {
   };
 
   openGoogleMaps = placeInfo => {
-    const url =
+    const urlGoogle =
       'https://www.google.com/maps/search/?api=1&query=' +
       placeInfo.geometry.location.lat +
       ',' +
       placeInfo.geometry.location.lng;
-    Linking.openURL(url).catch(err => console.error('An error occurred', err));
+    const urlApple =
+      'http://maps.apple.com/?daddr=' +
+      placeInfo.geometry.location.lat +
+      ',' +
+      placeInfo.geometry.location.lng;
+
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: ['Cancel', 'Apple Maps', 'Google Maps'],
+        cancelButtonIndex: 0,
+      },
+      buttonIndex => {
+        if (buttonIndex === 1) {
+          Linking.canOpenURL(urlApple)
+            .then(supported => {
+              if (!supported) {
+                Linking.openURL(urlApple).catch(err =>
+                  console.error('An error occurred', err),
+                );
+              } else {
+                return Linking.openURL(urlApple);
+              }
+            })
+            .catch(err => console.error('An error occurred', err));
+        } else if (buttonIndex === 2) {
+          Linking.canOpenURL(urlGoogle)
+            .then(supported => {
+              if (!supported) {
+                Linking.openURL(urlGoogle).catch(err =>
+                  console.error('An error occurred', err),
+                );
+              } else {
+                return Linking.openURL(urlGoogle);
+              }
+            })
+            .catch(err => console.error('An error occurred', err));
+        }
+      },
+    );
   };
 
   render() {
