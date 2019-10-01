@@ -4,7 +4,8 @@ import objSerializer from '../objSerializer';
 const _encodeURL = placeId => {
   const params = {
     place_id: placeId,
-    fields: 'name,photo,type,price_level,rating,review,user_ratings_total',
+    fields:
+      'name,photo,type,price_level,rating,review,user_ratings_total,geometry',
     key: GOOGLE_API_KEY,
   };
   return `https://maps.googleapis.com/maps/api/place/details/json?${objSerializer(
