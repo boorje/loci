@@ -56,12 +56,12 @@ export default class HomeScreen extends React.Component {
         userLocation: {
           latitude: coords.latitude,
           longitude: coords.longitude,
-          locationFound: true,
         },
+        locationFound: true,
       });
     } catch (error) {
       // TODO: What happens when location isn't found?
-      this.setState({nearbyPlaces: []});
+      this.setState({locationFound: false});
     }
   };
 
@@ -98,7 +98,7 @@ export default class HomeScreen extends React.Component {
   _fetchNearbyPlaces = async () => {
     if (this.state.locationFound) {
       const {latitude, longitude} = this.state.userLocation;
-      if (latitude.length > 0 && longitude.length > 0) {
+      if (latitude && longitude) {
         let nearbyPlaces = await findNearbyPlaces();
         if (nearbyPlaces.length > 0) {
           nearbyPlaces = await this._calcDistanceTo(nearbyPlaces);
@@ -130,9 +130,10 @@ export default class HomeScreen extends React.Component {
 
   showNearbyPlacesList = async () => {
     LayoutAnimation.configureNext(springAnimation);
-    const {nearbyPlaces, showNearbyPlacesList} = this.state;
+    const {showNearbyPlacesList} = this.state;
     if (!showNearbyPlacesList) {
       this.setState({showNearbyPlacesList: true});
+      const {nearbyPlaces} = this.state;
       if (nearbyPlaces.length < 1) {
         const foundPlaces = await this._fetchNearbyPlaces();
         if (foundPlaces !== null) {
@@ -145,6 +146,20 @@ export default class HomeScreen extends React.Component {
     } else {
       this.setState({showNearbyPlacesList: false});
     }
+  };
+
+  enableLocation = () => {
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options: ['Cancel', 'Settings'],
+        cancelButtonIndex: 0,
+      },
+      buttonIndex => {
+        if (buttonIndex === 1) {
+          Linking.openSettings();
+        }
+      },
+    );
   };
   //END
 
@@ -216,20 +231,6 @@ export default class HomeScreen extends React.Component {
       showBookmarkedPlacesList: false,
       showSearchBar: false,
     });
-  };
-
-  enableLocation = () => {
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: ['Cancel', 'Settings'],
-        cancelButtonIndex: 0,
-      },
-      buttonIndex => {
-        if (buttonIndex === 1) {
-          Linking.openSettings();
-        }
-      },
-    );
   };
 
   render() {

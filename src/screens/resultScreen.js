@@ -69,6 +69,7 @@ class ResultScreen extends React.Component {
     this.props.navigation.goBack();
   };
 
+  // TODO. From photo, place_id different? not showing bookmarked. Photos not correct
   _fetchInfoAboutPlace = async () => {
     let thePlaceInfo;
     const {selectedType} = this.state;
@@ -78,6 +79,10 @@ class ResultScreen extends React.Component {
       const detectedName = await googleOcr(base64);
       const detectedPlace = await searchPlace(detectedName, userLocation);
       thePlaceInfo = await getPlaceDetails(detectedPlace);
+      // connects to google API to get the photos
+      thePlaceInfo.photos = await this._addPhotos(thePlaceInfo);
+      // sets the place_id to the detected id
+      thePlaceInfo.place_id = detectedPlace;
     } else if (selectedType === 'NEARBY' || selectedType === 'SEARCH') {
       thePlaceInfo = this.props.navigation.getParam('placeInfo', null);
       thePlaceInfo.photos = [];
@@ -114,6 +119,21 @@ class ResultScreen extends React.Component {
         place_id: place_id ? place_id : null,
       },
     });
+  };
+
+  _addPhotos = async placeInfo => {
+    try {
+      let fetchedPhotos = [];
+      fetchedPhotos[0] = await getPlacePhotos(
+        placeInfo.photos[0].photo_reference,
+      );
+      fetchedPhotos[1] = await getPlacePhotos(
+        placeInfo.photos[1].photo_reference,
+      );
+      return fetchedPhotos;
+    } catch (error) {
+      console.log('could not fetch the photos and reviews');
+    }
   };
 
   _addPhotosAndReviews = async placeInfo => {
