@@ -19,7 +19,6 @@ import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
 import getReviewsAndPhotos from '../helpers/googleAPI/getReviewsAndPhotos';
 import getPlacePhotos from '../helpers/googleAPI/getPlacePhotos';
-
 import {
   addObjToStorage,
   existsInStorage,
