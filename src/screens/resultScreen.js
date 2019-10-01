@@ -12,13 +12,19 @@ import LinearGradient from 'react-native-linear-gradient';
 
 // -- Constants --
 import colors from '../constants/colors';
-import fonts from '../constants/fonts';
 
 // -- Helper Functions --
 import googleOcr from '../helpers/googleAPI/googleOcr';
 import searchPlace from '../helpers/googleAPI/searchPlace';
 import getPlaceDetails from '../helpers/googleAPI/getPlaceDetails';
-import getReviews from '../helpers/googleAPI/getReviews';
+import getReviewsAndPhotos from '../helpers/googleAPI/getReviewsAndPhotos';
+import getPlacePhotos from '../helpers/googleAPI/getPlacePhotos';
+
+import {
+  addObjToStorage,
+  existsInStorage,
+  removeObjFromStorage,
+} from '../helpers/asyncStorage';
 
 const {height, width} = Dimensions.get('window');
 
@@ -40,16 +46,16 @@ class ResultScreen extends React.Component {
       photos: [],
       reviews: [],
     },
-  };
-
-  closeScreen = () => {
-    this.props.navigation.goBack();
+    isBookmarked: false,
   };
 
   componentDidMount = async () => {
     try {
       const placeInfo = await this._fetchInfoAboutPlace();
       await this._updateStateWith(placeInfo);
+      this._addPhotosAndReviews(placeInfo);
+      const isBookmarked = await existsInStorage(placeInfo.place_id);
+      this.setState({isBookmarked});
     } catch (error) {
       // OCR - text not found -> present nearby locations or retake photo
       // Google API - name not found -> present nearby locations or retake photo. Add description on how to take proper photo
@@ -59,21 +65,23 @@ class ResultScreen extends React.Component {
     this.setState({loading: false});
   };
 
+  closeScreen = () => {
+    this.props.navigation.goBack();
+  };
+
   _fetchInfoAboutPlace = async () => {
     let thePlaceInfo;
     const {selectedType} = this.state;
     if (selectedType === 'PHOTO') {
       const base64 = this.props.navigation.getParam('base64', null);
       const userLocation = this.props.navigation.getParam('userLocation', null);
-      //? Why is await not affecting?
       const detectedName = await googleOcr(base64);
       const detectedPlace = await searchPlace(detectedName, userLocation);
       thePlaceInfo = await getPlaceDetails(detectedPlace);
     } else if (selectedType === 'NEARBY' || selectedType === 'SEARCH') {
       thePlaceInfo = this.props.navigation.getParam('placeInfo', null);
-      //? Why is await not affecting?
-      thePlaceInfo.reviews = await getReviews(thePlaceInfo.place_id);
-    } else if (selectedType === 'FAVORITE') {
+      thePlaceInfo.photos = [];
+    } else if (selectedType === 'BOOKMARKED') {
       thePlaceInfo = this.props.navigation.getParam('placeInfo', null);
     } else {
       throw 'Could not load any information. Please try again.';
@@ -91,6 +99,7 @@ class ResultScreen extends React.Component {
       price_level,
       photos,
       reviews,
+      place_id,
     } = placeInfo;
 
     this.setState({
@@ -102,8 +111,47 @@ class ResultScreen extends React.Component {
         price_level: price_level ? price_level : null,
         photos: photos ? photos : null,
         reviews: reviews ? reviews : null,
+        place_id: place_id ? place_id : null,
       },
     });
+  };
+
+  _addPhotosAndReviews = async placeInfo => {
+    try {
+      const {selectedType} = this.state;
+      if (selectedType === 'NEARBY' || selectedType === 'SEARCH') {
+        const {reviews, photos} = await getReviewsAndPhotos(placeInfo.place_id);
+        let fetchedPhotos = [];
+        fetchedPhotos[0] = await getPlacePhotos(photos[0].photo_reference);
+        fetchedPhotos[1] = await getPlacePhotos(photos[1].photo_reference);
+        this.setState(prevState => ({
+          placeInfo: {
+            ...prevState.placeInfo,
+            reviews: reviews,
+            photos: fetchedPhotos,
+          },
+        }));
+      }
+    } catch (error) {
+      Alert.alert(error);
+    }
+  };
+
+  // TODO: Make sure reviews and photos have loaded before being able to press
+  toggleBookmarkIcon = async () => {
+    try {
+      const {place_id} = this.state.placeInfo;
+      const isBookmarked = await existsInStorage(place_id);
+      if (isBookmarked) {
+        await removeObjFromStorage(place_id);
+        this.setState({isBookmarked: false});
+      } else {
+        await addObjToStorage(this.state.placeInfo);
+        this.setState({isBookmarked: true});
+      }
+    } catch (error) {
+      Alert.alert(error);
+    }
   };
 
   _toggleTabMenu = () => {
@@ -113,7 +161,8 @@ class ResultScreen extends React.Component {
   };
 
   render() {
-    const {placeInfo} = this.state;
+    const {loading, isBookmarked, placeInfo} = this.state;
+    const {rating, reviews, photos} = placeInfo;
     return (
       <View style={{flex: 1}}>
         {/* PLACE INFORMATION  */}
@@ -125,32 +174,39 @@ class ResultScreen extends React.Component {
               <TopBar
                 closeScreen={() => this.closeScreen()}
                 placeInfo={placeInfo}
+                isBookmarked={isBookmarked}
+                toggleBookmarkIcon={() => this.toggleBookmarkIcon()}
+                loading={loading}
               />
               <PlaceInformation placeInfo={placeInfo} width={width} />
             </View>
           </LinearGradient>
-          <Stars style={styles.stars} rating={placeInfo.rating} starSize={65} />
+          <Stars style={styles.stars} rating={rating} starSize={65} />
         </View>
 
         {/* IMAGES */}
         <View style={styles.bottomContainer}>
           <Section title="Images">
             <View style={styles.gallery}>
-              <Gallery
-                width={width * 0.88}
-                height={height * 0.2}
-                photos={placeInfo.photos}
-              />
+              {photos.length > 0 && (
+                <Gallery
+                  width={width * 0.88}
+                  height={height * 0.2}
+                  photos={placeInfo.photos}
+                />
+              )}
             </View>
           </Section>
 
           {/* REVIEWS */}
           <Section title="Reviews">
-            <ScrollView
-              style={{width: width * 0.88, marginBottom: '-5%'}}
-              keyboardShouldPersistTaps="always">
-              <Review reviews={placeInfo.reviews} />
-            </ScrollView>
+            {reviews && (
+              <ScrollView
+                style={{width: width * 0.88, marginBottom: '-5%'}}
+                keyboardShouldPersistTaps="always">
+                <Review reviews={reviews} />
+              </ScrollView>
+            )}
           </Section>
         </View>
       </View>

@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 
 // -- Constants
 import colors from '../constants/colors';
-import {GOOGLE_API_KEY} from '../constants/apiKeys';
 
 const entryBorderRadius = 8;
 
@@ -15,19 +14,7 @@ class Gallery extends React.Component {
     width: this.props.width,
   };
 
-  _extractUrls = info => {
-    const arrayObjects = info.map(photo => String(photo.photo_reference));
-    const url = 'https://maps.googleapis.com/maps/api/place/photo?';
-    const maxwidth = 'maxwidth=400';
-    const reference = '&photoreference=';
-    const key = '&key=' + GOOGLE_API_KEY;
-    return arrayObjects.map(
-      string => url + maxwidth + reference + string + key,
-    );
-  };
-
-  _renderItem = ({item, index}) => {
-    console.log(item);
+  _renderPhoto = photo => {
     return (
       <View style={styles.shadow}>
         <View style={styles.imageContainer}>
@@ -37,7 +24,7 @@ class Gallery extends React.Component {
               height: this.state.height,
               borderRadius: entryBorderRadius,
             }}
-            source={{uri: this._extractUrls(item)}}
+            source={{uri: photo.item}}
           />
         </View>
       </View>
@@ -51,7 +38,7 @@ class Gallery extends React.Component {
           this._carousel = c;
         }}
         data={this.props.photos}
-        renderItem={this._renderItem}
+        renderItem={this._renderPhoto}
         sliderWidth={this.props.width}
         itemWidth={this.props.width * 0.8}
         layout="stack"

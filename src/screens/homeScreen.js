@@ -15,6 +15,7 @@ import ListOfPlaces from '../components/listOfPlaces';
 import findNearbyPlaces from '../helpers/googleAPI/findNearbyPlaces';
 import getPosition from '../helpers/getPosition';
 import getDistanceTo from '../helpers/getDistanceTo';
+import {getStorageItems} from '../helpers/asyncStorage';
 
 // So that it works on Android //? WHAT WORKS?!?
 // const {UIManager} = NativeModules;
@@ -48,7 +49,6 @@ export default class HomeScreen extends React.Component {
       });
     } catch (error) {
       // TODO: What happens when location isn't found?
-      console.log('Could not find location.');
       this.setState({nearbyPlaces: []});
     }
   };
@@ -115,6 +115,7 @@ export default class HomeScreen extends React.Component {
   };
 
   navToResultForNearby = placeIndex => {
+    this.setState({showNearbyPlacesList: false});
     this.props.navigation.navigate('Results', {
       placeInfo: this.state.nearbyPlaces[placeIndex],
       selectedType: 'NEARBY',
@@ -138,20 +139,20 @@ export default class HomeScreen extends React.Component {
 
   // -- BOOKMARKED ACTIONS --
   navToResultForBookmarked = placeIndex => {
+    this.setState({showBookmarkedPlacesList: false});
     this.props.navigation.navigate('Results', {
       placeInfo: this.state.bookmarkedPlaces[placeIndex],
       selectedType: 'BOOKMARKED',
     });
   };
 
-  _loadBookmarked = async () => {
+  _getBookmarkedPlaces = async () => {
     try {
-      const bookmarked = await AsyncStorage.getItem('BOOKMARKED');
-      if (bookmarked === null) {
+      const {BOOKMARKED} = await getStorageItems('BOOKMARKED');
+      if (BOOKMARKED === null) {
         throw {errorMsg: 'You have not bookmarked any places yet.'};
       }
-      const bookmarkedPlaces = JSON.parse(bookmarked);
-      this.setState({bookmarkedPlaces: bookmarkedPlaces});
+      return BOOKMARKED;
     } catch (error) {
       Alert.alert(
         'Oops',
@@ -164,11 +165,16 @@ export default class HomeScreen extends React.Component {
 
   _removeBookmarked = async () => {};
 
-  showBookmarkedList = () => {
+  showBookmarkedList = async () => {
     LayoutAnimation.configureNext(springAnimation);
-    this.state.showBookmarkedPlacesList
-      ? this.setState({showBookmarkedPlacesList: false})
-      : this.setState({showBookmarkedPlacesList: true});
+    const {showBookmarkedPlacesList} = this.state;
+    if (!showBookmarkedPlacesList) {
+      this.setState({showBookmarkedPlacesList: true});
+      const bookmarked = await this._getBookmarkedPlaces();
+      this.setState({bookmarkedPlaces: bookmarked});
+    } else {
+      this.setState({showBookmarkedPlacesList: false});
+    }
   };
   //END
 
