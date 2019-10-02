@@ -32,7 +32,7 @@ const PlaceInformation = props => {
   return (
     <View
       style={{
-        width: props.width * 0.7,
+        width: '90%',
         marginLeft: '7%',
         marginBottom: '10%',
         justifyContent: 'center',
@@ -42,9 +42,7 @@ const PlaceInformation = props => {
           fontFamily: 'Avenir Next',
           color: 'white',
           fontWeight: 'bold',
-          fontSize: props.height > 667 ? 30 : 26,
-          textShadowColor: colors.charcoal,
-          textShadowRadius: 5,
+          fontSize: props.height > 568 ? (props.height < 668 ? 26 : 30) : 22,
         }}>
         {name}
       </Text>
@@ -52,7 +50,7 @@ const PlaceInformation = props => {
         {_modifyType(type)} {type && price_level > 0 ? '-' : ''}{' '}
         {_renderDollarsFrom(price_level)}
       </Text>
-      {/* <Text style={styles.review2}>based on {user_ratings_total} reviews </Text> */}
+      <Text style={styles.totalRatings}>{user_ratings_total} reviews </Text>
     </View>
   );
 };
@@ -77,8 +75,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 18,
-    textShadowColor: colors.charcoal,
-    textShadowRadius: 5,
   },
   review: {
     marginTop: 5,
@@ -86,11 +82,14 @@ const styles = StyleSheet.create({
     color: colors.charcoal,
     fontSize: 20,
   },
-  review2: {
+  totalRatings: {
     marginTop: 5,
     fontFamily: 'Avenir Next',
-    color: colors.charcoal,
+    color: '#fff',
     fontSize: 14,
+    position: 'absolute',
+    bottom: 0,
+    right: '7%',
   },
   stars: {
     marginTop: 20,

@@ -80,8 +80,7 @@ export default ListOfPlaces;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: '3%',
-    marginLeft: '3%',
+    padding: '5%',
   },
   itemContainer: {
     flexDirection: 'row',

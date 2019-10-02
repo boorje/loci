@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   list: {
     backgroundColor: 'rgba(52, 52, 52, 0.8)',
     marginTop: '1%',
-    paddingBottom: '5%',
+    padding: '5%',
     borderRadius: 25,
     width: '100%',
   },

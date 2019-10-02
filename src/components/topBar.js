@@ -1,5 +1,5 @@
 import React from 'react';
-import {ActionSheetIOS, Alert, View} from 'react-native';
+import {ActionSheetIOS, Linking, View} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import PropTypes from 'prop-types';
 
@@ -14,6 +14,46 @@ const _sharePlace = placeInfo => {
     },
     () => console.log('share failed'),
     () => console.log('share succeeded'),
+  );
+};
+
+const _openMaps = placeInfo => {
+  const urlGoogle = 'https://www.google.com/maps/search/?api=1&query=';
+  const urlApple = 'http://maps.apple.com/?daddr=';
+  // eslint-disable-next-line prettier/prettier
+  const coords = `${placeInfo.geometry.location.lat},${placeInfo.geometry.location.lng}`;
+  ActionSheetIOS.showActionSheetWithOptions(
+    {
+      options: ['Cancel', 'Apple Maps', 'Google Maps'],
+      cancelButtonIndex: 0,
+    },
+    buttonIndex => {
+      if (buttonIndex === 1) {
+        Linking.canOpenURL(urlApple + coords)
+          .then(supported => {
+            if (!supported) {
+              Linking.openURL(urlApple + coords).catch(err =>
+                console.error('An error occurred', err),
+              );
+            } else {
+              return Linking.openURL(urlApple + coords);
+            }
+          })
+          .catch(err => console.error('An error occurred', err));
+      } else if (buttonIndex === 2) {
+        Linking.canOpenURL(urlGoogle + coords)
+          .then(supported => {
+            if (!supported) {
+              Linking.openURL(urlGoogle + coords).catch(err =>
+                console.error('An error occurred', err),
+              );
+            } else {
+              return Linking.openURL(urlGoogle + coords);
+            }
+          })
+          .catch(err => console.error('An error occurred', err));
+      }
+    },
   );
 };
 
@@ -71,7 +111,7 @@ const TopBar = props => {
             }}
             underlayColor="transparent"
             backgroundColor="transparent"
-            onPress={() => props.openMaps(props.placeInfo)}
+            onPress={() => _openMaps(props.placeInfo)}
           />
         </View>
         <View>
