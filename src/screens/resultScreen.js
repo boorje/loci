@@ -8,7 +8,6 @@ import Gallery from '../components/gallery';
 import TopBar from '../components/topBar';
 import PlaceInformation from '../components/placeInformation';
 import Section from '../components/section';
-import LinearGradient from 'react-native-linear-gradient';
 
 // -- Constants --
 import colors from '../constants/colors';
@@ -187,9 +186,6 @@ class ResultScreen extends React.Component {
       <View style={{flex: 1}}>
         {/* PLACE INFORMATION  */}
         <View style={styles.topContainer}>
-          {/* <LinearGradient
-            colors={[colors.surf, 'white']}
-            style={styles.topContainer}> */}
           <View
             style={{
               flex: 1,
@@ -209,7 +205,6 @@ class ResultScreen extends React.Component {
               height={height}
             />
           </View>
-          {/* </LinearGradient> */}
           <Stars
             style={styles.stars}
             rating={rating}

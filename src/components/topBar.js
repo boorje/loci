@@ -7,10 +7,11 @@ import PropTypes from 'prop-types';
 import {colors} from '../constants/colors';
 
 const _sharePlace = placeInfo => {
+  console.log(placeInfo);
   ActionSheetIOS.showShareActionSheetWithOptions(
     {
-      subject: 'Check out this awesome restaurant',
-      message: 'Add the description of the place',
+      subject: `Check out this ${placeInfo.type}!`,
+      message: `Have you tried ${placeInfo.name}?\n\n\nI found ${placeInfo.name} with the Loci app!`,
     },
     () => console.log('share failed'),
     () => console.log('share succeeded'),
