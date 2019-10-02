@@ -3,9 +3,6 @@ import {ActionSheetIOS, Linking, View} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import PropTypes from 'prop-types';
 
-// -- constants --
-import {colors} from '../constants/colors';
-
 const _sharePlace = placeInfo => {
   console.log(placeInfo);
   ActionSheetIOS.showShareActionSheetWithOptions(
