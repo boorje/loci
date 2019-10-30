@@ -21,6 +21,9 @@ pod install
 
 # running the project (from the root directory)
 npm run ios
+
+# add Google API key inside src/constants/apiKeys.js 
+export const {GOOGLE_API_KEY} = "YOUR API KEY"
 ```
 
 ## License
